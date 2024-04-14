@@ -50,6 +50,7 @@ function MusicPage({ playlistInfo }) {
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
     });
+    console.log("When add to playlist is called", post.data);
     return post.data;
   };
   const deleteSong = async (trackId, aa, test) => {
@@ -64,7 +65,7 @@ function MusicPage({ playlistInfo }) {
       qc.invalidateQueries("path");
       qc.invalidateQueries("play");
       let nextSongs = cookies.songsAddedByUser || [];
-      nextSongs = [...nextSongs, `${addSongField}`];
+      nextSongs = [...nextSongs, `${data.id}`];
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
     },
   });
@@ -74,7 +75,7 @@ function MusicPage({ playlistInfo }) {
       deleteSong(id, anonify_index);
     },
     onSuccess: (data) => {
-      console.log(data);
+      console.log("Delete song res", data);
       qc.invalidateQueries("path");
       qc.invalidateQueries("play");
       let nextSongs = cookies.songsAddedByUser || [];
@@ -83,7 +84,6 @@ function MusicPage({ playlistInfo }) {
     },
   });
   const handleDelete = (id, anonify_index) => {
-    let aa = anonify_index;
     deleteSongFromPlaylist.mutate({ id, anonify_index });
   };
   return playlistInfo ? (
@@ -193,6 +193,7 @@ function MusicPage({ playlistInfo }) {
                   onClick={() => {
                     console.log(playlistInfo);
                     console.log(playlists.data);
+                    console.log(cookies.songsAddedByUser);
                   }}
                 >
                   Debug

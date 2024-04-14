@@ -37,30 +37,31 @@ db.addTrack = async (path, newTrack) => {
     return;
   }
 
-
   // Then, insert the new track into the tracks table with the playlist's id
-  const { status } = await supabase
+  const data = await supabase
     .from('tracks')
-    .insert([{ playlist_id: playlistData[0].id, track_id: newTrack }]);
+    .insert([{ playlist_id: playlistData[0].id, track_id: newTrack }])
+    .select();
 
-  if (status === 201) {
-    console.log('Track added successfully!');
+  if (data.status === 201) {
+    return data;
   } else {
-    console.error('Error adding track:', status);
+    console.error('Error adding track:', data.status);
   }
 }
 
 db.deleteTrack = async (anonify_index, track_id) => {
-  const { status } = await supabase
+  const data = await supabase
     .from('tracks')
     .delete()
     .eq('id', Number(anonify_index))
-    .eq('track_id', track_id);
-
-  if (status === 201) {
-    console.log('Track deleted successfully!');
+    .eq('track_id', track_id)
+    .select();
+  if (String(data.status).charAt(0) === '2') {
+    console.log('Track deleted successfully!', 'Data:', data.data);
+    return data.data;
   } else {
-    console.error('Error deleting track:', status);
+    console.error('Error deleting track:', data.status);
   }
 }
 

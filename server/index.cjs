@@ -105,11 +105,12 @@ app.patch('/:path/:songId/:index', (req, res, next) => {
   console.log('Path', req.params.path)
   console.log('Index', req.params.index)
   db.deleteTrack(req.params.index, req.params.songId)
-    .then((res) => {
-      res.status(200).send('Success');
+    .then((data) => {
+      console.log('Deleted song', data);
+      res.send(data[0]);
     })
     .catch((err) => {
-      res.status(400).send(err);
+      console.log('Deleted song but error', err, res);
     })
     .finally(() => {
       res.end();
@@ -149,8 +150,8 @@ app.put('/:id', async (req, res, next) => {
   }).then((response) => {
     console.log(response.data);
     db.addTrack('/' + req.params.id, req.body.trackId)
-      .then(() => {
-        res.status(201).send('Success');
+      .then((data) => {
+        res.status(201).send(data.data[0]);
       })
       .catch((err) => {
         res.status(500).send('Failed to add song to db');

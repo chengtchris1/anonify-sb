@@ -16,6 +16,7 @@ const MusicListElement = ({
       <div className='flex-grow ml-4'>
         <h2 className='text-lg font-medium text-white'>{title}</h2>
         <p className='text-white'>{artist}</p>
+        <p className='text-white'>{id}</p>
         <p className='text-white'>{album}</p>
         {previewUrl !== null ? (
           <>
@@ -36,7 +37,7 @@ const MusicListElement = ({
             handleDelete(id, anonify_index);
           }}
         >
-          {anonify_index}
+          Delete @ index: {anonify_index}
         </button>
       )}
     </div>

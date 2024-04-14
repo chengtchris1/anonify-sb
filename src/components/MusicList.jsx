@@ -28,7 +28,9 @@ const MusicList = ({ songs, songsAddedByUser, handleDelete }) => {
               album={song?.album?.name || "No album"}
               albumArt={song?.album?.images[1].url}
               previewUrl={song?.preview_url}
-              enableDelete={songsAddedByUser?.includes(song?.id) || false}
+              enableDelete={
+                songsAddedByUser?.includes(String(song?.anonify_index)) || false
+              }
               //enableDelete={true}
               handleDelete={handleDelete}
             />
