@@ -180,7 +180,7 @@ function MusicPage({ playlistInfo }) {
               Enter Track ID or Spotify URL:
               <br />
               <input
-                className='border border-gray-400 p-2 rounded-lg text-center mx-auto w-96'
+                className='border border-gray-400 p-2 rounded-lg text-center mx-auto w-96 my-1'
                 name='songURI'
                 value={addSongField}
                 onChange={(e) => {
