@@ -3,11 +3,48 @@ import axios from "axios";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(
+  "https://mbrefcgxduvrtayfrchk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1icmVmY2d4ZHV2cnRheWZyY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMwMzQ2MDYsImV4cCI6MjAyODYxMDYwNn0.cK4-JJZQ-vNXg3ahWJwPzqu4c_aGCWpAn1ZRESu4R2I"
+);
+
 function MusicPage({ playlistInfo }) {
   const [addSongField, setAddSongField] = useState();
   // [addedThisSession, setAddedThisSession] = useState([]);
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const qc = useQueryClient();
+
+  function handleDBChange(payload) {
+    console.log("Insert", payload);
+    qc.invalidateQueries("path");
+    qc.invalidateQueries("play");
+  }
+
+  const activeUsers = supabase.channel(window.location.pathname);
+  activeUsers
+    .on("presence", { event: "sync" }, () => {
+      const newState = activeUsers.presenceState();
+      console.log("sync", newState);
+    })
+    .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      console.log("join", key, newPresences);
+    })
+    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      console.log("leave", key, leftPresences);
+    })
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "tracks" },
+      handleDBChange
+    )
+    .on(
+      "postgres_changes",
+      { event: "DELETE", schema: "public", table: "tracks" },
+      handleDBChange
+    )
+    .subscribe();
+
   const getToken = async () => {
     let token = await axios.get("/auth");
     return token.data;
@@ -50,7 +87,6 @@ function MusicPage({ playlistInfo }) {
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
     });
-    console.log("When add to playlist is called", post.data);
     return post.data;
   };
   const deleteSong = async (trackId, aa, test) => {
@@ -178,8 +214,6 @@ function MusicPage({ playlistInfo }) {
                 <button
                   className='bg-black text-white rounded-lg py-1 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out'
                   onClick={() => {
-                    console.log(window.location.origin);
-                    console.log(window.location.href);
                     window.open(
                       `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
                     );

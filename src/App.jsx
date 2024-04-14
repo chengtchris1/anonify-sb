@@ -4,6 +4,7 @@ import MusicPage from "./components/MusicPage";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@supabase/supabase-js";
 
 function App() {
   const [playlistInfo, setPlaylistInfo] = useState(window.location.pathname);
@@ -12,7 +13,6 @@ function App() {
     queryFn: () =>
       axios.get("/playlist", { params: { path: window.location.pathname } }),
     enabled: window.location.pathname !== "/",
-    refetchOnWindowFocus: "always",
   });
 
   return window.location.pathname === "/" ? (
