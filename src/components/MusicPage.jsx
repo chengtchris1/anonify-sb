@@ -236,13 +236,13 @@ function MusicPage({ playlistInfo }) {
                 </button>
               </div>*/}
               {addSongToPlaylist.isError && (
-                <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center'>
+                <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                   <h2>Error...</h2>
                   <h4>{addSongToPlaylist.error.response.data}</h4>
                 </div>
               )}
               {addSongToPlaylist.isSuccess && (
-                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center'>
+                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                   Added song!
                 </div>
               )}
