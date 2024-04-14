@@ -80,20 +80,26 @@ app.get('/callback', async (req, res) => {
   const regex = /[^/]*$/
   const path = req.query.state.match(regex)[0]
 
-  const { playlistName, trackIds } = await db.findOne({ path: '/' + path }).exec()
-
+  let data = await db.getPlaylist('/' + path)
+  data = data[0]
+  const trackIds = data.tracks.map(track => track.track_id)
+  console.log(trackIds)
   const playlistResponse = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
-    name: playlistName || 'Untitled Playlist'
+    name: data.name || 'Untitled Playlist'
   }, {
     headers: { Authorization: `Bearer ${accessToken}` }
   });
   const playlistId = playlistResponse.data.id;
-  await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-    uris: trackIds.map(id => `spotify:track:${id}`)
-  }, {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-  console.log(playlistResponse.data);
+  try {
+    await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      uris: trackIds.map(id => `spotify:track:${id}`)
+    }, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+  } catch (err) {
+    console.log(err.response.data)
+  }
+  //console.log(playlistResponse.data);
   res.redirect(playlistResponse.data.external_urls.spotify)
   // res.redirect(originalPath);
 });

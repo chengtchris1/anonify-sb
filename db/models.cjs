@@ -55,7 +55,7 @@ db.deleteTrack = async (anonify_index, track_id) => {
     .from('tracks')
     .delete()
     .eq('id', Number(anonify_index))
-    .eq('track_id', track_id)
+    // .eq('track_id', track_id)
     .select();
   if (String(data.status).charAt(0) === '2') {
     console.log('Track deleted successfully!', 'Data:', data.data);

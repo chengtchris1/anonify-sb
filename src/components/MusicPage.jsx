@@ -89,8 +89,12 @@ function MusicPage({ playlistInfo }) {
     });
     return post.data;
   };
-  const deleteSong = async (trackId, aa, test) => {
-    let patch = await axios.patch(`${playlistInfo.path}/${trackId}/${aa}`);
+  const deleteSong = async (trackId, anonify_index) => {
+    console.log("Deleting", trackId, anonify_index);
+    console.log("path", playlistInfo.path);
+    let patch = await axios.patch(
+      `${playlistInfo.path}/${trackId}/${anonify_index}`
+    );
     return patch.data;
   };
   const addSongToPlaylist = useMutation({
@@ -149,7 +153,7 @@ function MusicPage({ playlistInfo }) {
                   <h2 className='text-white text-2xl font-bold text-center m-5'>
                     Waiting for you to add music to:
                     <br />
-                    {playlistInfo.playlistName}
+                    {playlistInfo.name}
                   </h2>
                 </div>
                 <br />
