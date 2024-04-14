@@ -1,0 +1,245 @@
+const express = require('express');
+const path = require('path');
+const axios = require('axios');
+require('dotenv').config();
+const port = process.env.PORT || 3000;
+const app = express();
+const db = require('./db/schema.cjs');
+const qs = require('qs');
+const fs = require('fs');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, './client/dist')));
+
+let bearerToken = '';
+let tokenFetchTime = null;
+let authData = qs.stringify({
+  grant_type: 'client_credentials',
+  client_id: process.env.spotify_client_id,
+  client_secret: process.env.spotify_secret
+});
+
+app.get('/auth', (req, res, next) => {
+  const currentTime = new Date()
+  if (bearerToken !== '' && currentTime - tokenFetchTime < 60 * 60 * 1000) {
+    return res.send(bearerToken);
+  }
+  axios.post('https://accounts.spotify.com/api/token', authData, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  }).then((response) => {
+    //console.log(JSON.stringify(response.data));
+    //res.status(200).send(response.data);
+    bearerToken = response.data.access_token;
+    tokenFetchTime = new Date()
+    res.send(response.data.access_token);
+  })
+    .catch((err) => { next(err) });
+});
+
+app.get('/callback', async (req, res) => {
+  const code = req.query.code;
+  //userToken = code;
+  console.log('code', code)
+  let response;
+  try {
+    response = await axios.post('https://accounts.spotify.com/api/token', qs.stringify({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: process.env.callback_uri,
+      client_id: process.env.spotify_client_id,
+      client_secret: process.env.spotify_secret,
+    }));
+  } catch (err) {
+    console.log(err)
+    console.log('error with getting token after cb')
+    res.end();
+  }
+  let accessToken;
+  let userInfo;
+  let userId;
+  accessToken = response.data.access_token;
+  try {
+    userInfo = await axios.get('https://api.spotify.com/v1/me', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    userId = userInfo.data.id;
+    console.log('userId', userId);
+  } catch (err) {
+    console.log('error with userinfo')
+    res.end();
+  }
+
+  //Originally, the user was redirected to the original path, but redirecting to the playlist instead.
+  //const originalPath = decodeURIComponent(req.query.state);
+  // Exchange the code for an access token...
+  // Then redirect the user to the original path
+
+  const regex = /[^/]*$/
+  const path = req.query.state.match(regex)[0]
+
+  const { playlistName, trackIds } = await db.findOne({ path: '/' + path }).exec()
+
+  const playlistResponse = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+    name: playlistName || 'Untitled Playlist'
+  }, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  const playlistId = playlistResponse.data.id;
+  await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    uris: trackIds.map(id => `spotify:track:${id}`)
+  }, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  console.log(playlistResponse.data);
+  res.redirect(playlistResponse.data.external_urls.spotify)
+  // res.redirect(originalPath);
+});
+
+
+app.patch('/:path/:songId', (req, res, next) => {
+  //Delete the song from the playlist
+  console.log('Song', req.params.songId)
+  console.log('Path', req.params.path)
+  db.findOne({ path: '/' + req.params.path }).exec()
+    .then((doc) => {
+      const index = doc.trackIds.lastIndexOf(req.params.songId);
+      if (index > -1) {
+        doc.trackIds.splice(index, 1);
+        return doc.save();
+      }
+    })
+    .catch((err) => {
+      res.status(400).send('Error');
+    })
+    .finally(() => {
+      res.end();
+    });
+})
+
+app.get('/playlist', (req, res, next) => {
+  console.log(req.query)
+  db.findOne({ path: req.query.path }).exec()
+    .then((data) => {
+      console.log(req.query.path);
+      res.status(200).send(data);
+    })
+    .catch((err) => {
+      if (!res.headersSent) {
+        next(err)
+      }
+    });
+})
+
+app.get('/:id', (req, res, next) => {
+  res.sendFile(path.join(__dirname, '/client/dist/index.html'));
+})
+
+app.put('/:id', async (req, res, next) => {
+  //updateOne the playlist with the path of the id
+  //Add the track id to the playlist field
+  //req.params.id
+
+  //call spotify api to check if the track id is valid
+  //if valid, add to the playlist
+  //if not valid, return an error
+  axios.get(`https://api.spotify.com/v1/tracks/${req.body.trackId}`, {
+    headers: {
+      Authorization: `Bearer ${bearerToken}`
+    }
+  }).then((response) => {
+    console.log(response.data);
+    db.updateOne({ path: '/' + req.params.id }, { $push: { trackIds: req.body.trackId } }).exec()
+      .then(() => {
+        res.status(201).send('Success');
+      })
+      .catch((err) => {
+        res.status(500).send('Failed to add song to db');
+      })
+  }).catch((err) => {
+    console.log(err);
+    res.status(400)
+    res.send('Invalid track id / Track id not found on Spotify');
+  });
+
+
+
+})
+
+/*
+app.get('/:id', (req, res, next) => {
+  if (req.params.id === "playlist") {
+    console.log(req.query)
+    db.findOne({ path: req.query.path }).exec()
+      .then((data) => {
+        console.log(req.query.path);
+        res.status(200).send(data);
+      })
+      .catch((err) => {
+        if (!res.headersSent) {
+          next(err)
+        }
+      });
+  } else if (req.params.id == "auth") {
+    const currentTime = new Date()
+    if (bearerToken !== '' && currentTime - tokenFetchTime < 60 * 60 * 1000) {
+      return res.send(bearerToken);
+    }
+    axios({
+      method: 'post',
+      url: 'https://accounts.spotify.com/api/token',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: authData
+    })
+      .then((response) => {
+        //console.log(JSON.stringify(response.data));
+        //res.status(200).send(response.data);
+        bearerToken = response.data.access_token;
+        tokenFetchTime = new Date()
+        res.send(response.data.access_token);
+      })
+      .catch((err) => { next(err) });
+
+  } else {
+    res.sendFile(path.join(__dirname, '/client/dist/index.html'));
+  }
+});
+*/
+app.post('/', (req, res) => {
+  //console.log(req.body);
+  db.create(req.body)
+    .then(() => {
+      res.status(201).send('Success');
+    })
+    .catch((err) => {
+      console.log(err)
+      res.status(400).send('Error');
+    });
+})
+
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send('Error!');
+});
+
+app.listen(port, "::", () => {
+  console.log(`Server is running on port ${port}`);
+  console.log(port)
+  fs.readdir(path.join(__dirname, './client/dist'), (err, files) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(files);
+    }
+  });
+  fs.readdir(path.join(__dirname, './client/dist/resources'), (err, files) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(files);
+    }
+  });
+});
