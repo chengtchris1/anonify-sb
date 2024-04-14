@@ -194,7 +194,7 @@ function MusicPage({ playlistInfo }) {
               <br />
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 mr-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
                   onClick={() => {
                     const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
                     const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
@@ -212,7 +212,7 @@ function MusicPage({ playlistInfo }) {
               </div>
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
                   onClick={() => {
                     window.open(
                       `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
@@ -222,9 +222,10 @@ function MusicPage({ playlistInfo }) {
                   Auth Spotify + Create Playlist
                 </button>
               </div>
+              {/*
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
                   onClick={() => {
                     console.log(playlistInfo);
                     console.log(playlists.data);
@@ -233,7 +234,18 @@ function MusicPage({ playlistInfo }) {
                 >
                   Debug
                 </button>
-              </div>
+              </div>*/}
+              {addSongToPlaylist.isError && (
+                <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center'>
+                  <h2>Error...</h2>
+                  <h4>{addSongToPlaylist.error.response.data}</h4>
+                </div>
+              )}
+              {addSongToPlaylist.isSuccess && (
+                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center'>
+                  Added song!
+                </div>
+              )}
             </label>
           </div>
           {/*
@@ -248,17 +260,6 @@ function MusicPage({ playlistInfo }) {
               Show cookies.
             </button>
             */}
-          {addSongToPlaylist.isError && (
-            <div className='bg-red-500 text-white text-bold p-4 rounded-lg w-80 mx-auto'>
-              <h2>Error...</h2>
-              <h4>{addSongToPlaylist.error.response.data}</h4>
-            </div>
-          )}
-          {addSongToPlaylist.isSuccess && (
-            <div className='bg-emerald-700 text-white text-bold rounded-lg p-3 flex justify-center w-32 mx-auto'>
-              Added song!
-            </div>
-          )}
         </div>
       </div>
     </>

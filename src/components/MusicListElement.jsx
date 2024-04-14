@@ -37,7 +37,7 @@ const MusicListElement = ({
             handleDelete(id, anonify_index);
           }}
         >
-          Delete @ index: {anonify_index}
+          Delete
         </button>
       )}
     </div>
