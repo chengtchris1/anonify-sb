@@ -1,8 +1,6 @@
-const sb = require("@supabase/supabase-js");
 require('dotenv').config()
-
+const sb = require("@supabase/supabase-js");
 const supabase = sb.createClient(process.env.sb_client_id, process.env.sb_secret);
-
 const db = {};
 
 db.getPlaylist = async (path) => {
@@ -11,14 +9,20 @@ db.getPlaylist = async (path) => {
       id,
       path,
       name,
-      tracks ( track_id )
+      tracks ( id, track_id )
       `)
     .eq('path', path)
-  const transformedData = data.map(item => ({
-    ...item,
-    tracks: item.tracks.map(track => track.track_id)
-  }));
-  return transformedData;
+  return data;
+}
+db.addPlaylist = async (path, playlistName, songLimit) => {
+  const { data, error } = await supabase.from('playlists')
+    .insert([{ path, name: playlistName, song_limit: songLimit }]);
+  if (error) {
+    console.error('Error adding playlist:', error);
+    return;
+  }
+  return data;
+
 }
 
 db.addTrack = async (path, newTrack) => {
@@ -33,6 +37,7 @@ db.addTrack = async (path, newTrack) => {
     return;
   }
 
+
   // Then, insert the new track into the tracks table with the playlist's id
   const { status } = await supabase
     .from('tracks')
@@ -42,6 +47,20 @@ db.addTrack = async (path, newTrack) => {
     console.log('Track added successfully!');
   } else {
     console.error('Error adding track:', status);
+  }
+}
+
+db.deleteTrack = async (anonify_index, track_id) => {
+  const { status } = await supabase
+    .from('tracks')
+    .delete()
+    .eq('id', Number(anonify_index))
+    .eq('track_id', track_id);
+
+  if (status === 201) {
+    console.log('Track deleted successfully!');
+  } else {
+    console.error('Error deleting track:', status);
   }
 }
 

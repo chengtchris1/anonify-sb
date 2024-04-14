@@ -4,7 +4,7 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
 function MusicPage({ playlistInfo }) {
-  [addSongField, setAddSongField] = useState();
+  const [addSongField, setAddSongField] = useState();
   // [addedThisSession, setAddedThisSession] = useState([]);
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const qc = useQueryClient();
@@ -13,7 +13,9 @@ function MusicPage({ playlistInfo }) {
     return token.data;
   };
   const getStoredSongs = async () => {
-    let songString = playlistInfo.trackIds.join(",");
+    let songArray = playlistInfo.tracks.map((song) => song.track_id);
+    console.log(songArray);
+    let songString = songArray.join(",");
     let token = await axios.get("/auth");
     token = token.data;
     let songs = await axios.get(
@@ -24,7 +26,12 @@ function MusicPage({ playlistInfo }) {
         },
       }
     );
-    console.log(songs.data);
+    songs.data.tracks = songs.data.tracks.map((song, index) => {
+      return {
+        ...song,
+        anonify_index: playlistInfo.tracks[index].id,
+      };
+    });
     return songs.data;
   };
 
@@ -36,7 +43,7 @@ function MusicPage({ playlistInfo }) {
   const playlists = useQuery({
     queryKey: ["play", playlistInfo],
     queryFn: getStoredSongs,
-    enabled: !!playlistInfo && playlistInfo.trackIds.length > 0,
+    enabled: !!playlistInfo && playlistInfo.tracks.length > 0,
   });
 
   const addToPlaylist = async () => {
@@ -45,8 +52,8 @@ function MusicPage({ playlistInfo }) {
     });
     return post.data;
   };
-  const deleteSong = async (trackId) => {
-    let patch = await axios.patch(`${playlistInfo.path}/${trackId}`);
+  const deleteSong = async (trackId, aa, test) => {
+    let patch = await axios.patch(`${playlistInfo.path}/${trackId}/${aa}`);
     return patch.data;
   };
   const addSongToPlaylist = useMutation({
@@ -63,7 +70,9 @@ function MusicPage({ playlistInfo }) {
   });
   const deleteSongFromPlaylist = useMutation({
     mutationKey: ["delete"],
-    mutationFn: deleteSong,
+    mutationFn: ({ id, anonify_index }) => {
+      deleteSong(id, anonify_index);
+    },
     onSuccess: (data) => {
       console.log(data);
       qc.invalidateQueries("path");
@@ -73,8 +82,9 @@ function MusicPage({ playlistInfo }) {
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
     },
   });
-  handleDelete = (id) => {
-    deleteSongFromPlaylist.mutate(id);
+  const handleDelete = (id, anonify_index) => {
+    let aa = anonify_index;
+    deleteSongFromPlaylist.mutate({ id, anonify_index });
   };
   return playlistInfo ? (
     <>
@@ -83,7 +93,7 @@ function MusicPage({ playlistInfo }) {
           <a href='/'>Anonify</a>
         </h1>
         <div className='bg-black overflow-auto flex-grow h-screen max-w-[85vh]'>
-          {playlists.isSuccess && playlistInfo.trackIds.length > 0 && (
+          {playlists.isSuccess && playlistInfo.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
                 {playlistInfo.playlistName}
@@ -96,24 +106,25 @@ function MusicPage({ playlistInfo }) {
             </>
           )}
           {/*Source for loading icon: https://tailwindflex.com/tag/loading*/}
-          {playlistInfo.trackIds.length === 0 && (
-            <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
-              <div>
-                <h2 className='text-white text-2xl font-bold text-center m-5'>
-                  Waiting for you to add music to:
-                  <br />
-                  {playlistInfo.playlistName}
-                </h2>
+          {!playlistInfo.tracks ||
+            (playlistInfo.tracks.length === 0 && (
+              <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
+                <div>
+                  <h2 className='text-white text-2xl font-bold text-center m-5'>
+                    Waiting for you to add music to:
+                    <br />
+                    {playlistInfo.playlistName}
+                  </h2>
+                </div>
+                <br />
+                <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
+                  <span className='sr-only'>Loading...</span>
+                  <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                  <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                  <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+                </div>
               </div>
-              <br />
-              <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
-                <span className='sr-only'>Loading...</span>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
-              </div>
-            </div>
-          )}
+            ))}
           {playlists.isError ? (
             <div className='w-full h-screen flex flex-grow justify-center items-center'>
               Playlist error...
@@ -175,6 +186,16 @@ function MusicPage({ playlistInfo }) {
                   }}
                 >
                   Auth Spotify + Create Playlist
+                </button>
+
+                <button
+                  className='bg-black text-white rounded-lg py-1 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out'
+                  onClick={() => {
+                    console.log(playlistInfo);
+                    console.log(playlists.data);
+                  }}
+                >
+                  Debug
                 </button>
               </div>
             </label>

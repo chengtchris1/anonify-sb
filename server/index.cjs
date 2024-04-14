@@ -4,12 +4,13 @@ const axios = require('axios');
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 const app = express();
-const db = require('./db/schema.cjs');
+const db = require('../db/models.cjs');
 const qs = require('qs');
 const fs = require('fs');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, './client/dist')));
+app.use(express.static(path.join(__dirname, './../dist')));
 
 let bearerToken = '';
 let tokenFetchTime = null;
@@ -98,20 +99,17 @@ app.get('/callback', async (req, res) => {
 });
 
 
-app.patch('/:path/:songId', (req, res, next) => {
+app.patch('/:path/:songId/:index', (req, res, next) => {
   //Delete the song from the playlist
   console.log('Song', req.params.songId)
   console.log('Path', req.params.path)
-  db.findOne({ path: '/' + req.params.path }).exec()
-    .then((doc) => {
-      const index = doc.trackIds.lastIndexOf(req.params.songId);
-      if (index > -1) {
-        doc.trackIds.splice(index, 1);
-        return doc.save();
-      }
+  console.log('Index', req.params.index)
+  db.deleteTrack(req.params.index, req.params.songId)
+    .then((res) => {
+      res.status(200).send('Success');
     })
     .catch((err) => {
-      res.status(400).send('Error');
+      res.status(400).send(err);
     })
     .finally(() => {
       res.end();
@@ -120,10 +118,10 @@ app.patch('/:path/:songId', (req, res, next) => {
 
 app.get('/playlist', (req, res, next) => {
   console.log(req.query)
-  db.findOne({ path: req.query.path }).exec()
+  db.getPlaylist(req.query.path)
     .then((data) => {
       console.log(req.query.path);
-      res.status(200).send(data);
+      res.status(200).send(data[0]);
     })
     .catch((err) => {
       if (!res.headersSent) {
@@ -133,7 +131,7 @@ app.get('/playlist', (req, res, next) => {
 })
 
 app.get('/:id', (req, res, next) => {
-  res.sendFile(path.join(__dirname, '/client/dist/index.html'));
+  res.sendFile(path.join(__dirname, './../dist/index.html'));
 })
 
 app.put('/:id', async (req, res, next) => {
@@ -150,7 +148,7 @@ app.put('/:id', async (req, res, next) => {
     }
   }).then((response) => {
     console.log(response.data);
-    db.updateOne({ path: '/' + req.params.id }, { $push: { trackIds: req.body.trackId } }).exec()
+    db.addTrack('/' + req.params.id, req.body.trackId)
       .then(() => {
         res.status(201).send('Success');
       })
@@ -210,7 +208,7 @@ app.get('/:id', (req, res, next) => {
 */
 app.post('/', (req, res) => {
   //console.log(req.body);
-  db.create(req.body)
+  db.addPlaylist(req.body.path, req.body.playlistName, req.body.songLimit)
     .then(() => {
       res.status(201).send('Success');
     })
@@ -228,18 +226,4 @@ app.use(function (err, req, res, next) {
 app.listen(port, "::", () => {
   console.log(`Server is running on port ${port}`);
   console.log(port)
-  fs.readdir(path.join(__dirname, './client/dist'), (err, files) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(files);
-    }
-  });
-  fs.readdir(path.join(__dirname, './client/dist/resources'), (err, files) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(files);
-    }
-  });
 });

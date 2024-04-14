@@ -16,7 +16,8 @@ const MusicList = ({ songs, songsAddedByUser, handleDelete }) => {
             }}
           >
             <MusicListElement
-              key={index}
+              key={song?.anonify_index}
+              anonify_index={song?.anonify_index}
               id={song?.id}
               title={song?.name}
               artist={song?.artists

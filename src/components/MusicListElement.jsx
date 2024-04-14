@@ -7,6 +7,7 @@ const MusicListElement = ({
   albumArt,
   previewUrl,
   enableDelete,
+  anonify_index,
   handleDelete,
 }) => {
   return (
@@ -30,10 +31,12 @@ const MusicListElement = ({
         <button
           className='text-white border-solid border border-white  border-spacing-1 mt-4 p-2 rounded-lg bg-black hover:bg-white hover:text-black hover:border-black h-12 transition duration-500 ease-in-out'
           onClick={() => {
-            handleDelete(id);
+            console.log(anonify_index);
+            console.log(id);
+            handleDelete(id, anonify_index);
           }}
         >
-          Delete
+          {anonify_index}
         </button>
       )}
     </div>
