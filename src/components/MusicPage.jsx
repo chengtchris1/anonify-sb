@@ -11,16 +11,13 @@ const supabase = createClient(
 
 function MusicPage({ playlistInfo }) {
   const [addSongField, setAddSongField] = useState();
-  // [addedThisSession, setAddedThisSession] = useState([]);
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const qc = useQueryClient();
-
   function handleDBChange(payload) {
     console.log("Insert", payload);
     qc.invalidateQueries("path");
     qc.invalidateQueries("play");
   }
-
   const activeUsers = supabase.channel(window.location.pathname);
   activeUsers
     .on("presence", { event: "sync" }, () => {
@@ -44,7 +41,6 @@ function MusicPage({ playlistInfo }) {
       handleDBChange
     )
     .subscribe();
-
   const getToken = async () => {
     let token = await axios.get("/auth");
     return token.data;
@@ -101,7 +97,6 @@ function MusicPage({ playlistInfo }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      console.log(data);
       qc.invalidateQueries("path");
       qc.invalidateQueries("play");
       let nextSongs = cookies.songsAddedByUser || [];
@@ -129,7 +124,7 @@ function MusicPage({ playlistInfo }) {
   return playlistInfo ? (
     <>
       <div className='flex flex-wrap justify-around'>
-        <h1 className='text-6xl font-bold text-center'>
+        <h1 className='text-6xl font-bold text-center m-5'>
           <a href='/'>Anonify</a>
         </h1>
         <div className='bg-black overflow-auto flex-grow h-screen max-w-[85vh]'>
@@ -150,7 +145,7 @@ function MusicPage({ playlistInfo }) {
             (playlistInfo.tracks.length === 0 && (
               <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
                 <div>
-                  <h2 className='text-white text-2xl font-bold text-center m-5'>
+                  <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
                     Waiting for you to add music to:
                     <br />
                     {playlistInfo.name}
@@ -179,13 +174,13 @@ function MusicPage({ playlistInfo }) {
             </div>
           ) : null}
         </div>
-        <div className='flex-grow-2 min-w-fit justify-center'>
-          <div className='m-10'>
+        <div className='flex grow-1 min-w-fit justify-center'>
+          <div className='mx-5 my-10'>
             <label className='font-bold' htmlFor='songURI'>
               Enter Track ID or Spotify URL:
               <br />
               <input
-                className='border border-gray-400 p-2 rounded-lg text-center w-80 mx-auto w-full'
+                className='border border-gray-400 p-2 rounded-lg text-center mx-auto w-96'
                 name='songURI'
                 value={addSongField}
                 onChange={(e) => {
@@ -199,7 +194,7 @@ function MusicPage({ playlistInfo }) {
               <br />
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-1 px-3 mr-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out'
+                  className='bg-black text-white rounded-lg py-2 px-3 mr-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
                   onClick={() => {
                     const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
                     const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
@@ -214,9 +209,10 @@ function MusicPage({ playlistInfo }) {
                 >
                   Add to list
                 </button>
-
+              </div>
+              <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-1 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out'
+                  className='bg-black text-white rounded-lg py-2 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
                   onClick={() => {
                     window.open(
                       `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
@@ -225,9 +221,10 @@ function MusicPage({ playlistInfo }) {
                 >
                   Auth Spotify + Create Playlist
                 </button>
-
+              </div>
+              <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-1 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out'
+                  className='bg-black text-white rounded-lg py-2 px-3 ml-1 mt-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
                   onClick={() => {
                     console.log(playlistInfo);
                     console.log(playlists.data);

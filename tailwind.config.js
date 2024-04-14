@@ -25,6 +25,10 @@ export default {
         'landinglogin': '2px 4px 0px 1px rgba(0,0,0,0.76);',
         'reservebtn': '2px 2px 0px 1px #FFF4E0;',
       },
+      backgroundImage: {
+        'landingbg': "url('./assets/bg.jpg')",
+        backdropBlur: ['responsive']
+      }
     },
   },
   plugins: [

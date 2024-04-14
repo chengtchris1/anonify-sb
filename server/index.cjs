@@ -107,9 +107,6 @@ app.get('/callback', async (req, res) => {
 
 app.patch('/:path/:songId/:index', (req, res, next) => {
   //Delete the song from the playlist
-  console.log('Song', req.params.songId)
-  console.log('Path', req.params.path)
-  console.log('Index', req.params.index)
   db.deleteTrack(req.params.index, req.params.songId)
     .then((data) => {
       console.log('Deleted song', data);
@@ -172,47 +169,6 @@ app.put('/:id', async (req, res, next) => {
 
 })
 
-/*
-app.get('/:id', (req, res, next) => {
-  if (req.params.id === "playlist") {
-    console.log(req.query)
-    db.findOne({ path: req.query.path }).exec()
-      .then((data) => {
-        console.log(req.query.path);
-        res.status(200).send(data);
-      })
-      .catch((err) => {
-        if (!res.headersSent) {
-          next(err)
-        }
-      });
-  } else if (req.params.id == "auth") {
-    const currentTime = new Date()
-    if (bearerToken !== '' && currentTime - tokenFetchTime < 60 * 60 * 1000) {
-      return res.send(bearerToken);
-    }
-    axios({
-      method: 'post',
-      url: 'https://accounts.spotify.com/api/token',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      data: authData
-    })
-      .then((response) => {
-        //console.log(JSON.stringify(response.data));
-        //res.status(200).send(response.data);
-        bearerToken = response.data.access_token;
-        tokenFetchTime = new Date()
-        res.send(response.data.access_token);
-      })
-      .catch((err) => { next(err) });
-
-  } else {
-    res.sendFile(path.join(__dirname, '/client/dist/index.html'));
-  }
-});
-*/
 app.post('/', (req, res) => {
   //console.log(req.body);
   db.addPlaylist(req.body.path, req.body.playlistName, req.body.songLimit)
