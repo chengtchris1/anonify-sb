@@ -109,16 +109,11 @@ app.get('/callback', async (req, res) => {
 app.patch('/:songIndex/upvote', (req, res, next) => {
   db.upvoteTrack(req.params.songIndex)
     .then((data) => {
-      if (data.status === 204) {
-        console.log('Successfully upvoted track');
-      } else {
-        throw new Error('Failed to upvote track');
-      }
+      res.send(String(data));
     })
     .catch((err) => {
       console.log('Error upvoting track', err);
     });
-  res.end();
 })
 
 app.patch('/:songIndex/downvote', (req, res, next) => {

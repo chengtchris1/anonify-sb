@@ -1,6 +1,6 @@
 import AnimateIn from "./plugins/AnimateIn";
 import Axios from "axios";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 const MusicListElement = ({
@@ -17,6 +17,7 @@ const MusicListElement = ({
 }) => {
   const qc = useQueryClient();
   const [loading, setLoading] = useState(false);
+
   return (
     <motion.div className='flex items-center m-5'>
       <img src={albumArt} alt={album} className='w-36 h-36 rounded-full' />
@@ -34,16 +35,14 @@ const MusicListElement = ({
         ) : (
           <div className='text-white'>No preview available</div>
         )}
-        <button className='text-white border-solid border border-white border-spacing-1 mt-4 p-2 rounded-lg bg-black hover:bg-white hover:text-black hover:border-black h-12 transition duration-500 ease-in-out'>
+        <button className='text-white border-solid border border-white border-spacing-1 mt-4 p-2 rounded-lg bg-black hover:bg-white hover:text-black hover:border-black h-12 transition duration-500 ease-in-out disabled:bg-gray-500 disabled:text-black disabled:border-black disabled:cursor-not-allowed'>
           {votes} votes
         </button>
         <button
           disabled={loading}
-          className='text-white border-solid border border-white border-spacing-1 mt-4 p-2 rounded-lg bg-black hover:bg-white hover:text-black hover:border-black h-12 transition duration-500 ease-in-out'
+          className='text-white border-solid border border-white border-spacing-1 mt-4 p-2 rounded-lg bg-black hover:bg-white hover:text-black hover:border-black h-12 transition duration-500 ease-in-out disabled:bg-gray-500 disabled:text-black disabled:border-black disabled:cursor-not-allowed'
           onClick={() => {
-            setLoading(true);
             Axios.patch(`/${anonify_index}/upvote`).then(() => {
-              qc.invalidateQueries("play");
               setLoading(false);
             });
           }}
@@ -56,7 +55,6 @@ const MusicListElement = ({
           onClick={() => {
             setLoading(true);
             Axios.patch(`/${anonify_index}/downvote`).then(() => {
-              qc.invalidateQueries("play");
               setLoading(false);
             });
           }}

@@ -86,13 +86,13 @@ db.upvoteTrack = async (anonify_index) => {
     .update({ votes: newVotes })
     .eq('id', Number(anonify_index));
 
-  if (data.error) {
+  if (data.error !== null) {
     console.error('Error upvoting track:', data);
     return;
   }
 
   console.log('Track upvoted successfully!', 'Data:', data);
-  return data;
+  return newVotes;
 }
 
 db.downvoteTrack = async (anonify_index) => {
@@ -114,15 +114,15 @@ db.downvoteTrack = async (anonify_index) => {
   const data = await supabase
     .from('tracks')
     .update({ votes: newVotes })
-    .eq('id', Number(anonify_index));
-
+    .eq('id', Number(anonify_index))
+    .select();
   if (data.error) {
     console.error('Error upvoting track:', data);
     return;
   }
 
   console.log('Track upvoted successfully!', 'Data:', data);
-  return data;
+  return newVotes;
 }
 
 module.exports = db;

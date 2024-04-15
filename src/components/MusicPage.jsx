@@ -13,9 +13,10 @@ function MusicPage({ playlistInfo }) {
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
+  const [playlist_state, setPlaylist_state] = useState();
   const qc = useQueryClient();
   function handleDBChange(payload) {
-    console.log("Insert", payload);
+    console.log("DB change", payload);
     qc.invalidateQueries("path");
     qc.invalidateQueries("play");
   }
@@ -36,6 +37,11 @@ function MusicPage({ playlistInfo }) {
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "tracks" },
       handleDBChange
+    )
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "tracks" },
+      handleRatingChange
     )
     .on(
       "postgres_changes",
@@ -69,6 +75,7 @@ function MusicPage({ playlistInfo }) {
       };
     });
     console.log(songs.data);
+    setPlaylist_state(songs.data);
     return songs.data;
   };
 
@@ -78,10 +85,26 @@ function MusicPage({ playlistInfo }) {
     enabled: !!playlistInfo,
   });
   const playlists = useQuery({
-    queryKey: ["play", playlistInfo],
+    queryKey: ["play"],
     queryFn: getStoredSongs,
     enabled: !!playlistInfo && playlistInfo.tracks.length > 0,
   });
+
+  function handleRatingChange(payload) {
+    console.log("DB change", payload);
+    console.log(payload.new.id);
+    console.log(payload.new.votes);
+    console.log(playlists.data);
+    const newTracks = playlists.data.tracks.map((song) => {
+      if (song.anonify_index === payload.new.id) {
+        return { ...song, votes: payload.new.votes };
+      }
+      return song;
+    });
+    console.log("nextdata", { ...playlists.data, tracks: newTracks });
+    console.log("test", qc.getQueryData(["play"]));
+    qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
+  }
 
   const addToPlaylist = async () => {
     let post = await axios.put(`${playlistInfo.path}`, {

@@ -1,8 +1,15 @@
 import React from "react";
 import MusicListElement from "./MusicListElement";
 import AnimateIn from "./plugins/AnimateIn";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-const MusicList = ({ songs, songsAddedByUser, handleDelete, currentSort }) => {
+const MusicList = ({
+  songs,
+  songsAddedByUser,
+  handleDelete,
+  currentSort,
+  handleDataChange,
+}) => {
   // An array of song objects
 
   return (
