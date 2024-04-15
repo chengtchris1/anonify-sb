@@ -19,6 +19,7 @@ function MusicPage({ playlistInfo }) {
     qc.invalidateQueries("path");
     qc.invalidateQueries("play");
   }
+
   const activeUsers = supabase.channel(window.location.pathname);
   activeUsers
     .on("presence", { event: "sync" }, () => {

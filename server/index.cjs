@@ -121,6 +121,21 @@ app.patch('/:songIndex/upvote', (req, res, next) => {
   res.end();
 })
 
+app.patch('/:songIndex/downvote', (req, res, next) => {
+  db.downvoteTrack(req.params.songIndex)
+    .then((data) => {
+      if (data.status === 204) {
+        console.log('Successfully downvoted track');
+      } else {
+        throw new Error('Failed to downvote track');
+      }
+    })
+    .catch((err) => {
+      console.log('Error downvoting track', err);
+    });
+  res.end();
+})
+
 app.patch('/:path/:songId/:index', (req, res, next) => {
   //Delete the song from the playlist
   db.deleteTrack(req.params.index, req.params.songId)
