@@ -32,7 +32,13 @@ function MusicPage({ playlistInfo }) {
 
   const insert = useMutation({
     mutationFn: async (payload) => {
-      qc.invalidateQueries(["play"]);
+      //check if the song is already in the playlist
+      let songArray = playlistInfo.tracks.map((song) => song.track_id);
+      if (songArray.includes(payload.new.anonify_index)) {
+        return;
+      } else {
+        qc.invalidateQueries(["play"]);
+      }
     },
   });
 
@@ -143,18 +149,27 @@ function MusicPage({ playlistInfo }) {
     } catch (err) {
       throw err;
     }
-    console.log("response", response.data);
-    const newTrack = {
-      ...response,
-      anonify_index: post.id,
-      votes: 0,
-    };
-    qc.setQueryData(["play"], (currentData) => ({
-      ...currentData,
-      tracks: [...currentData.tracks, newTrack],
-    }));
-    console.log("My post", post);
-    return post;
+    try {
+      console.log("response", response.data);
+      const newTrack = {
+        ...response.data.tracks[0],
+        anonify_index: post.data.id,
+        votes: 0,
+      };
+
+      console.log("newTrack", newTrack);
+      qc.setQueryData(["play"], (currentData) => {
+        console.log("currentData", currentData);
+        return {
+          ...currentData,
+          tracks: [...currentData.tracks, newTrack],
+        };
+      });
+
+      return post;
+    } catch (err) {
+      throw err;
+    }
   };
   const deleteSong = async (trackId, anonify_index) => {
     console.log("Deleting", trackId, anonify_index);
@@ -171,10 +186,12 @@ function MusicPage({ playlistInfo }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      qc.invalidateQueries(["play"]);
+      setTimeout(() => {
+        qc.invalidateQueries(["play"]);
+      }, 1000);
       console.log("thedata", data);
       let nextSongs = cookies.songsAddedByUser || [];
-      nextSongs = [...nextSongs, `${data.id}`];
+      nextSongs = [...nextSongs, `${data.data.id}`];
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
     },
   });
@@ -343,7 +360,7 @@ function MusicPage({ playlistInfo }) {
               {addSongToPlaylist.isError && (
                 <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                   <h2>Error...</h2>
-                  <h4>{addSongToPlaylist.error}</h4>
+                  {<h4>{addSongToPlaylist.error.message}</h4>}
                 </div>
               )}
               {addSongToPlaylist.isSuccess && (

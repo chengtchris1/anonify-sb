@@ -18,6 +18,11 @@ const MusicList = ({
         {songs
           .sort((a, b) => {
             if (currentSort === "votes") {
+              if (b.votes === a.votes) {
+                // If votes are equal, sort by anonify index (least to greatest)
+                return a.anonify_index - b.anonify_index;
+              }
+              // Otherwise, sort by votes (greatest to least)
               return b.votes - a.votes;
             } else if (currentSort === "title") {
               return a.name.localeCompare(b.name);
