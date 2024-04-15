@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
@@ -32,37 +32,7 @@ function MusicPage({ playlistInfo }) {
 
   const insert = useMutation({
     mutationFn: async (payload) => {
-      try {
-        const response = await axios.get(
-          `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        return response;
-      } catch (err) {
-        throw err;
-      }
-    },
-    onSuccess: async (response, payload) => {
-      console.error("Insert", response);
-      console.error("payload", payload);
-      await qc.invalidateQueries(["play"]);
-      const newTrack = {
-        ...response.data.tracks[0],
-        anonify_index: payload.new.id,
-        votes: payload.new.votes,
-      };
-
-      await qc.setQueryData(["play"], {
-        ...playlists.data,
-        tracks: [...playlists.data.tracks, newTrack],
-      });
-    },
-    onSettled: (response, payload) => {
-      //setAddSongField("");
+      qc.invalidateQueries(["play"]);
     },
   });
 
@@ -154,26 +124,37 @@ function MusicPage({ playlistInfo }) {
     qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
   }
 
-  async function handleInsert(payload) {
-    const newTrack = {
-      ...response.data.tracks[0],
-      anonify_index: payload.new.id,
-      votes: payload.new.votes,
-    };
-
-    await qc.setQueryData(["play"], {
-      ...playlists.data,
-      tracks: [...playlists.data.tracks, newTrack],
-    });
-
-    qc.invalidateQueries(["play"]);
-  }
-
   const addToPlaylist = async () => {
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
     });
-    return post.data;
+    console.log("Post", post);
+    await qc.cancelQueries(["play"]);
+    let response;
+    try {
+      response = await axios.get(
+        `https://api.spotify.com/v1/tracks?market=US&ids=${addSongField}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (err) {
+      throw err;
+    }
+    console.log("response", response.data);
+    const newTrack = {
+      ...response,
+      anonify_index: post.id,
+      votes: 0,
+    };
+    qc.setQueryData(["play"], (currentData) => ({
+      ...currentData,
+      tracks: [...currentData.tracks, newTrack],
+    }));
+    console.log("My post", post);
+    return post;
   };
   const deleteSong = async (trackId, anonify_index) => {
     console.log("Deleting", trackId, anonify_index);
@@ -183,18 +164,18 @@ function MusicPage({ playlistInfo }) {
     );
     return patch.data;
   };
+  //On mutate, get spotify info.
+  //Mutation function is adding to DB.
+  //Add songfield
   const addSongToPlaylist = useMutation({
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      // qc.invalidateQueries(["play"]);
+      qc.invalidateQueries(["play"]);
+      console.log("thedata", data);
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = [...nextSongs, `${data.id}`];
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
-      setTimeout(() => setIsAdding(false), 2000);
-    },
-    onSettled: () => {
-      //setAddSongField("");
     },
   });
   const deleteSongFromPlaylist = useMutation({
@@ -362,7 +343,7 @@ function MusicPage({ playlistInfo }) {
               {addSongToPlaylist.isError && (
                 <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                   <h2>Error...</h2>
-                  <h4>{addSongToPlaylist.error.response.data}</h4>
+                  <h4>{addSongToPlaylist.error}</h4>
                 </div>
               )}
               {addSongToPlaylist.isSuccess && (

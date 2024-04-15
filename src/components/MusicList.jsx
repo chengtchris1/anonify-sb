@@ -37,7 +37,7 @@ const MusicList = ({
                 id={song?.id}
                 title={song?.name}
                 artist={song?.artists
-                  .map((artist) => {
+                  ?.map((artist) => {
                     return artist?.name;
                   })
                   .join(", ")}
