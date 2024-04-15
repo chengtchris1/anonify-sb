@@ -9,7 +9,7 @@ db.getPlaylist = async (path) => {
       id,
       path,
       name,
-      tracks ( id, track_id )
+      tracks ( id, track_id, votes )
       `)
     .eq('path', path)
   return data;
@@ -63,6 +63,36 @@ db.deleteTrack = async (anonify_index, track_id) => {
   } else {
     console.error('Error deleting track:', data.status);
   }
+}
+
+db.upvoteTrack = async (anonify_index) => {
+  // Fetch the current number of votes
+  const { data: currentData, error: fetchError } = await supabase
+    .from('tracks')
+    .select('votes')
+    .eq('id', Number(anonify_index));
+
+  if (fetchError) {
+    console.error('Error fetching track:', fetchError);
+    return;
+  }
+
+  // Increment the number of votes
+  const newVotes = currentData[0].votes + 1;
+
+  // Update the number of votes
+  const data = await supabase
+    .from('tracks')
+    .update({ votes: newVotes })
+    .eq('id', Number(anonify_index));
+
+  if (data.error) {
+    console.error('Error upvoting track:', data);
+    return;
+  }
+
+  console.log('Track upvoted successfully!', 'Data:', data);
+  return data;
 }
 
 module.exports = db;

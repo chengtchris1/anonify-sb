@@ -12,6 +12,7 @@ const supabase = createClient(
 function MusicPage({ playlistInfo }) {
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
+  const [currentSort, setCurrentSort] = useState("votes");
   const qc = useQueryClient();
   function handleDBChange(payload) {
     console.log("Insert", payload);
@@ -63,8 +64,10 @@ function MusicPage({ playlistInfo }) {
       return {
         ...song,
         anonify_index: playlistInfo.tracks[index].id,
+        votes: playlistInfo.tracks[index].votes,
       };
     });
+    console.log(songs.data);
     return songs.data;
   };
 
@@ -97,7 +100,6 @@ function MusicPage({ playlistInfo }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      qc.invalidateQueries("path");
       qc.invalidateQueries("play");
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = [...nextSongs, `${data.id}`];
@@ -111,7 +113,6 @@ function MusicPage({ playlistInfo }) {
     },
     onSuccess: (data) => {
       console.log("Delete song res", data);
-      qc.invalidateQueries("path");
       qc.invalidateQueries("play");
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = nextSongs.filter((song) => song !== data);
@@ -137,6 +138,7 @@ function MusicPage({ playlistInfo }) {
                 songs={playlists.data.tracks}
                 songsAddedByUser={cookies?.songsAddedByUser}
                 handleDelete={handleDelete}
+                currentSort={currentSort}
               />
             </>
           )}
@@ -208,6 +210,21 @@ function MusicPage({ playlistInfo }) {
                   }}
                 >
                   Add to list
+                </button>
+              </div>
+              <div className='flex justify-end'>
+                <button
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  onClick={() => {
+                    if (currentSort === "votes") {
+                      setCurrentSort("orderadded");
+                    } else {
+                      setCurrentSort("votes");
+                    }
+                  }}
+                >
+                  {currentSort === "votes" && "Change sort to order added"}
+                  {currentSort === "orderadded" && "Change sort to votes"}
                 </button>
               </div>
               <div className='flex justify-end'>

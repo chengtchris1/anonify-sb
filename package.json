@@ -16,6 +16,7 @@
     "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "framer-motion": "^11.0.28",
     "mxcn": "^2.0.0",
     "nodemon": "^3.1.0",
     "react": "^18.2.0",

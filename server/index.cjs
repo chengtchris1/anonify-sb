@@ -105,6 +105,22 @@ app.get('/callback', async (req, res) => {
 });
 
 
+
+app.patch('/:songIndex/upvote', (req, res, next) => {
+  db.upvoteTrack(req.params.songIndex)
+    .then((data) => {
+      if (data.status === 204) {
+        console.log('Successfully upvoted track');
+      } else {
+        throw new Error('Failed to upvote track');
+      }
+    })
+    .catch((err) => {
+      console.log('Error upvoting track', err);
+    });
+  res.end();
+})
+
 app.patch('/:path/:songId/:index', (req, res, next) => {
   //Delete the song from the playlist
   db.deleteTrack(req.params.index, req.params.songId)
