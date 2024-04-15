@@ -19,7 +19,7 @@ const MusicListElement = ({
   const [loading, setLoading] = useState(false);
 
   return (
-    <motion.div className='flex items-center m-5'>
+    <div className='flex items-center m-5'>
       <img src={albumArt} alt={album} className='w-36 h-36 rounded-full' />
       <div className='flex-grow ml-4'>
         <h2 className='text-lg font-medium text-white'>{title}</h2>
@@ -74,7 +74,7 @@ const MusicListElement = ({
           Delete {anonify_index}
         </button>
       )}
-    </motion.div>
+    </div>
   );
 };
 

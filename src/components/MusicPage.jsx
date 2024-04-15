@@ -4,6 +4,7 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
 import { createClient } from "@supabase/supabase-js";
+let token;
 const supabase = createClient(
   "https://mbrefcgxduvrtayfrchk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1icmVmY2d4ZHV2cnRheWZyY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMwMzQ2MDYsImV4cCI6MjAyODYxMDYwNn0.cK4-JJZQ-vNXg3ahWJwPzqu4c_aGCWpAn1ZRESu4R2I"
@@ -13,16 +14,61 @@ function MusicPage({ playlistInfo }) {
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
-  const [playlist_state, setPlaylist_state] = useState();
+  const [isAdding, setIsAdding] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const qc = useQueryClient();
   function handleDBChange(payload) {
     console.log("DB change", payload);
-    qc.invalidateQueries("path");
-    qc.invalidateQueries("play");
+    qc.invalidateQueries(["play"]);
   }
+  function handleResponsiveDelete(payload) {
+    const newTracks = playlists.data.tracks.filter((song) => {
+      return song.anonify_index !== payload.old.id;
+    });
+    console.log("nextdata", { ...playlists.data, tracks: newTracks });
+    console.log("test", qc.getQueryData(["play"]));
+    qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
+  }
+
+  const insert = useMutation({
+    mutationFn: async (payload) => {
+      try {
+        const response = await axios.get(
+          `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response;
+      } catch (err) {
+        throw err;
+      }
+    },
+    onSuccess: async (response, payload) => {
+      console.error("Insert", response);
+      console.error("payload", payload);
+      await qc.invalidateQueries(["play"]);
+      const newTrack = {
+        ...response.data.tracks[0],
+        anonify_index: payload.new.id,
+        votes: payload.new.votes,
+      };
+
+      await qc.setQueryData(["play"], {
+        ...playlists.data,
+        tracks: [...playlists.data.tracks, newTrack],
+      });
+    },
+    onSettled: (response, payload) => {
+      //setAddSongField("");
+    },
+  });
 
   const activeUsers = supabase.channel(window.location.pathname);
   activeUsers
+    /*
     .on("presence", { event: "sync" }, () => {
       const newState = activeUsers.presenceState();
       console.log("sync", newState);
@@ -32,11 +78,14 @@ function MusicPage({ playlistInfo }) {
     })
     .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
       console.log("leave", key, leftPresences);
-    })
+    })*/
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "tracks" },
-      handleDBChange
+      (payload) => {
+        console.log("insert", payload);
+        insert.mutate(payload);
+      }
     )
     .on(
       "postgres_changes",
@@ -46,7 +95,7 @@ function MusicPage({ playlistInfo }) {
     .on(
       "postgres_changes",
       { event: "DELETE", schema: "public", table: "tracks" },
-      handleDBChange
+      handleResponsiveDelete
     )
     .subscribe();
   const getToken = async () => {
@@ -57,7 +106,7 @@ function MusicPage({ playlistInfo }) {
     let songArray = playlistInfo.tracks.map((song) => song.track_id);
     console.log(songArray);
     let songString = songArray.join(",");
-    let token = await axios.get("/auth");
+    token = await axios.get("/auth");
     token = token.data;
     let songs = await axios.get(
       "https://api.spotify.com/v1/tracks?market=US&ids=" + songString,
@@ -75,7 +124,6 @@ function MusicPage({ playlistInfo }) {
       };
     });
     console.log(songs.data);
-    setPlaylist_state(songs.data);
     return songs.data;
   };
 
@@ -106,6 +154,21 @@ function MusicPage({ playlistInfo }) {
     qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
   }
 
+  async function handleInsert(payload) {
+    const newTrack = {
+      ...response.data.tracks[0],
+      anonify_index: payload.new.id,
+      votes: payload.new.votes,
+    };
+
+    await qc.setQueryData(["play"], {
+      ...playlists.data,
+      tracks: [...playlists.data.tracks, newTrack],
+    });
+
+    qc.invalidateQueries(["play"]);
+  }
+
   const addToPlaylist = async () => {
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
@@ -124,10 +187,14 @@ function MusicPage({ playlistInfo }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      qc.invalidateQueries("play");
+      // qc.invalidateQueries(["play"]);
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = [...nextSongs, `${data.id}`];
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
+      setTimeout(() => setIsAdding(false), 2000);
+    },
+    onSettled: () => {
+      //setAddSongField("");
     },
   });
   const deleteSongFromPlaylist = useMutation({
@@ -137,7 +204,7 @@ function MusicPage({ playlistInfo }) {
     },
     onSuccess: (data) => {
       console.log("Delete song res", data);
-      qc.invalidateQueries("play");
+      qc.invalidateQueries(["play"]);
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = nextSongs.filter((song) => song !== data);
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
@@ -215,13 +282,29 @@ function MusicPage({ playlistInfo }) {
                 }}
               />
               {addSongToPlaylist.isLoading && (
-                <div className='w-full flex justify-center'>Adding...</div>
+                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                  Loading...
+                </div>
               )}
               <br />
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  disabled={isAdding}
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full disabled:bg-gray-500 disabled:text-black disabled:border-black'
                   onClick={() => {
+                    setIsAdding(true);
+                    setCooldown(2);
+                    const countdown = setInterval(() => {
+                      setCooldown((prevCooldown) => {
+                        if (prevCooldown <= 1) {
+                          clearInterval(countdown);
+                          setIsAdding(false);
+                          return 0;
+                        } else {
+                          return prevCooldown - 1;
+                        }
+                      });
+                    }, 1000);
                     const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
                     const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
                     if (spotifyUrlMatch) {
@@ -233,7 +316,7 @@ function MusicPage({ playlistInfo }) {
                     //setAddSongField("");
                   }}
                 >
-                  Add to list
+                  {isAdding ? `Add to list (${cooldown})` : "Add to list"}
                 </button>
               </div>
               <div className='flex justify-end'>

@@ -13,7 +13,7 @@ const MusicList = ({
   // An array of song objects
 
   return (
-    <motion.ul>
+    <ul>
       <AnimatePresence>
         {songs
           .sort((a, b) => {
@@ -29,14 +29,7 @@ const MusicList = ({
             <motion.li
               key={song.anonify_index} // Make sure to add a unique key
               layout // This prop animates the item when its layout changes
-              initial={{ opacity: 0 }} // Start position
-              animate={{ opacity: 1 }} // End position
-              exit={{ opacity: 0 }} // Animation when the item is removed
-              transition={{
-                ease: "easeIn",
-                duration: 0.5,
-                staggerChildren: 0.5,
-              }} // Controls the animation speed
+              layoutScroll
             >
               <MusicListElement
                 key={song.anonify_index}
@@ -62,7 +55,7 @@ const MusicList = ({
             </motion.li>
           ))}
       </AnimatePresence>
-    </motion.ul>
+    </ul>
   );
 };
 
