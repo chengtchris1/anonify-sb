@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
@@ -17,50 +17,70 @@ function MusicPage({ playlistInfo }) {
   const [isAdding, setIsAdding] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const qc = useQueryClient();
-  function handleDBChange(payload) {
+  async function handleDBChange(payload) {
     console.log("DB change", payload);
-    qc.invalidateQueries(["play"]);
+    await qc.cancelQueries("play");
+    await qc.invalidateQueries(["play"]);
   }
-  function handleResponsiveDelete(payload) {
-    const newTracks = playlists.data.tracks.filter((song) => {
-      return song.anonify_index !== payload.old.id;
+  async function handleResponsiveDelete(payload) {
+    //check if the song has already been optmisically deleted in the playlist
+    //if it has, don't do anything.
+    // else, remove the song from the playlist.
+    console.log(payload);
+    console.log("qd", qc.getQueryData({ queryKey: ["play"] }));
+    await qc.cancelQueries({ queryKey: ["play"] });
+
+    await qc.setQueryData(["play"], (oldData) => {
+      const newTracks = oldData.tracks.filter((song) => {
+        return song.anonify_index !== payload.old.id;
+      });
+      return { ...oldData, tracks: newTracks };
     });
-    console.log("nextdata", { ...playlists.data, tracks: newTracks });
-    console.log("test", qc.getQueryData(["play"]));
-    qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
+
+    await qc.invalidateQueries({ queryKey: ["play"] });
   }
 
-  const insert = useMutation({
-    mutationFn: async (payload) => {
-      //check if the song is already in the playlist
-      let songArray = playlistInfo.tracks.map((song) => song.track_id);
-      if (songArray.includes(payload.new.anonify_index)) {
-        return;
-      } else {
-        qc.invalidateQueries(["play"]);
-      }
-    },
-  });
+  async function insert(payload) {
+    console.log("insert", payload);
+    console.log(token);
+    //Call axios to get the song info.
+    //Add the song to the playlist.
+    //Update the playlist.
+    //Invalidate the query.
+    axios
+      .get(
+        `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("response", response.data);
+        const newTrack = {
+          ...response.data.tracks[0],
+          anonify_index: payload.new.id,
+          votes: 0,
+        };
+
+        qc.setQueryData(["play"], (currentData) => {
+          console.log("currentData", currentData);
+          return {
+            ...currentData,
+            tracks: [...currentData.tracks, newTrack],
+          };
+        });
+      });
+  }
 
   const activeUsers = supabase.channel(window.location.pathname);
   activeUsers
-    /*
-    .on("presence", { event: "sync" }, () => {
-      const newState = activeUsers.presenceState();
-      console.log("sync", newState);
-    })
-    .on("presence", { event: "join" }, ({ key, newPresences }) => {
-      console.log("join", key, newPresences);
-    })
-    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-      console.log("leave", key, leftPresences);
-    })*/
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "tracks" },
-      (payload) => {
-        console.log("insert", payload);
-        insert.mutate(payload);
+      (p) => {
+        insert(p);
       }
     )
     .on(
@@ -71,9 +91,22 @@ function MusicPage({ playlistInfo }) {
     .on(
       "postgres_changes",
       { event: "DELETE", schema: "public", table: "tracks" },
-      handleResponsiveDelete
+      (p) => {
+        handleResponsiveDelete(p);
+      }
     )
     .subscribe();
+  /*
+    .on("presence", { event: "sync" }, () => {
+      const newState = activeUsers.presenceState();
+      console.log("sync", newState);
+    })
+    .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      console.log("join", key, newPresences);
+    })
+    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      console.log("leave", key, leftPresences);
+    })*/
   const getToken = async () => {
     let token = await axios.get("/auth");
     return token.data;
@@ -157,7 +190,6 @@ function MusicPage({ playlistInfo }) {
         votes: 0,
       };
 
-      console.log("newTrack", newTrack);
       qc.setQueryData(["play"], (currentData) => {
         console.log("currentData", currentData);
         return {
@@ -177,6 +209,13 @@ function MusicPage({ playlistInfo }) {
     let patch = await axios.patch(
       `${playlistInfo.path}/${trackId}/${anonify_index}`
     );
+    //Update the playlist and remove the song from the list.
+    let nextPlaylist = playlists.data.tracks.filter((song) => {
+      return song.anonify_index !== anonify_index;
+    });
+    qc.setQueryData(["play"], (currentData) => {
+      return { ...currentData, tracks: nextPlaylist };
+    });
     return patch.data;
   };
   //On mutate, get spotify info.
