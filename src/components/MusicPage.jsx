@@ -11,11 +11,15 @@ const supabase = createClient(
 );
 
 function MusicPage({ playlistInfo }) {
+  const [theme, setTheme] = React.useState("synthwave");
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
   const [isAdding, setIsAdding] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  useEffect(() => {
+    document.querySelector("html").setAttribute("data-theme", theme);
+  }, [theme]);
   const qc = useQueryClient();
   async function handleDBChange(payload) {
     console.log("DB change", payload);
@@ -276,11 +280,52 @@ function MusicPage({ playlistInfo }) {
   return playlistInfo ? (
     <>
       <div className='flex flex-wrap justify-evenly bg-base-100'>
-        <h1 className='text-6xl font-bold text-center m-5 px-30'>
-          <a href='/'>
-            <span className='text-primary'>Anonify</span>
-          </a>
-        </h1>
+        <div>
+          <div className='dropdown dropdown-hover'>
+            <div
+              tabIndex={0}
+              role='button'
+              className='btn btn-xs btn-primary ml-5 mt-10'
+            >
+              <span className='underline'>Theme</span>
+            </div>
+            <ul
+              tabIndex={0}
+              className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
+              onMouseLeave={() => {}}
+            >
+              <li>
+                <a
+                  className={`${
+                    theme === "light" ? "bg-primary" : "bg-transparent"
+                  } hover:text-white`}
+                  onClick={() => {
+                    setTheme("light");
+                  }}
+                >
+                  Light
+                </a>
+              </li>
+              <li>
+                <a
+                  className={`${
+                    theme === "synthwave" ? "bg-primary" : "bg-transparent"
+                  } hover:text-white`}
+                  onClick={() => {
+                    setTheme("synthwave");
+                  }}
+                >
+                  Synthwave
+                </a>
+              </li>
+            </ul>
+          </div>
+          <h1 className='text-6xl font-bold text-center m-5 px-30'>
+            <a href='/'>
+              <span className='text-primary'>Anonify</span>
+            </a>
+          </h1>
+        </div>
         <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
@@ -308,7 +353,7 @@ function MusicPage({ playlistInfo }) {
               <br />
               <div className='h-full flex flex-col justify-center items-center'>
                 <div className='flex items-center h-[70vh]'>
-                  <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
+                  <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
                     <span className='sr-only'>Loading...</span>
                     <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                     <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
@@ -338,17 +383,22 @@ function MusicPage({ playlistInfo }) {
         </div>
         <div className='flex grow-1 min-w-fit justify-center'>
           <div className='mx-5 my-10 px-20'>
-            Sort by:{" "}
+            <span className='font-sans text-primary'>Sort by: </span>
             <div className='dropdown dropdown-hover'>
-              <div tabIndex={0} role='button' className='btn btn-primary m-0'>
+              <div
+                tabIndex={0}
+                role='button'
+                className='btn btn-xs btn-primary m-0'
+              >
                 <span className='underline'>
-                  {currentSort === "votes" && "votes"}
-                  {currentSort === "orderadded" && "order added"}
+                  {currentSort === "votes" && "Votes"}
+                  {currentSort === "orderadded" && "Order Added"}
                 </span>
               </div>
               <ul
                 tabIndex={0}
                 className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
+                onMouseLeave={() => {}}
               >
                 <li>
                   <a
@@ -456,6 +506,9 @@ function MusicPage({ playlistInfo }) {
                     console.log(playlistInfo);
                     console.log(playlists.data);
                     console.log(cookies.songsAddedByUser);
+                    theme === "synthwave"
+                      ? setTheme("light")
+                      : setTheme("synthwave");
                   }}
                 >
                   Debug

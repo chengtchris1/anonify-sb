@@ -78,7 +78,7 @@ const MusicListElement = ({
               console.log(id);
               handleDelete(id, anonify_index);
             }}
-            className='btn btn-square btn-outline btn-sm bg-transparent
+            className='btn btn-square btn-outline btn-sm bg-primary
             hover:bg-opacity-50'
           >
             <svg

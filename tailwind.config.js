@@ -5,7 +5,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   daisyui: {
-    themes: ["synthwave"],// false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
+    themes: ["synthwave", "light"],// false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
     darkTheme: "dark", // name of one of the included themes for dark mode
     base: false, // applies background color and foreground color for root element by default
     styled: true, // include daisyUI colors and design decisions for all components
@@ -22,14 +22,6 @@ export default {
         'mmcream': '#FFF4E0',
         'mmpurple': '#30011E',
         'mmgrey': '#2c2c2c'
-      },
-      fontFamily: {
-        sans: ['Helvetica', 'sans-serif'],
-        serif: ['PT Serif', 'serif'],
-        light: ['Raleway Light', 'sans-serif'],
-        extralight: ['Raleway ExtraLight', 'sans-serif'],
-        thin: ['Raleway Thin', 'sans-serif'],
-        semibold: ['Raleway SemiBold', 'sans-serif'],
       },
       boxShadow: {
         'landinglogin': '2px 4px 0px 1px rgba(0,0,0,0.76);',
