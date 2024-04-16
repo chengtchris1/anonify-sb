@@ -39,10 +39,12 @@ function MusicPage({ playlistInfo }) {
     //check if the song has already been optmisically added in the playlist
     //if it has, don't do anything.
     // else, add the song to the playlist.
+    setIsAdding(true);
+    console.log("payload from insert()", payload);
     const isSongAdded = playlists.data.tracks.some(
       (song) => song.anonify_index === payload.new.id
     );
-
+    console.log("isSongAdded", isSongAdded);
     if (!isSongAdded) {
       try {
         const response = await axios.get(
@@ -60,9 +62,9 @@ function MusicPage({ playlistInfo }) {
           anonify_index: payload.new.id,
           votes: 0,
         };
-
+        console.log("newTrackInInsert", newTrack);
         qc.setQueryData(["play"], (currentData) => {
-          console.log("currentData", currentData);
+          console.log("currentData2", currentData);
           return {
             ...currentData,
             tracks: [...currentData.tracks, newTrack],
@@ -70,6 +72,8 @@ function MusicPage({ playlistInfo }) {
         });
       } catch (error) {
         console.error("Failed to insert track:", error);
+      } finally {
+        setIsAdding(false);
       }
     }
   }
@@ -117,6 +121,9 @@ function MusicPage({ playlistInfo }) {
     let songString = songArray.join(",");
     token = await axios.get("/auth");
     token = token.data;
+    if (playlistInfo.tracks.length === 0) {
+      return { tracks: [] };
+    }
     let songs = await axios.get(
       "https://api.spotify.com/v1/tracks?market=US&ids=" + songString,
       {
@@ -144,7 +151,7 @@ function MusicPage({ playlistInfo }) {
   const playlists = useQuery({
     queryKey: ["play"],
     queryFn: getStoredSongs,
-    enabled: !!playlistInfo && playlistInfo.tracks.length > 0,
+    enabled: !!playlistInfo,
   });
 
   function handleRatingChange(payload) {
@@ -164,11 +171,12 @@ function MusicPage({ playlistInfo }) {
   }
 
   const addToPlaylist = async () => {
+    setIsAdding(true);
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
     });
     console.log("Post", post);
-    await qc.cancelQueries(["play"]);
+    //await qc.cancelQueries(["play"]);
     let response;
     try {
       response = await axios.get(
@@ -191,7 +199,8 @@ function MusicPage({ playlistInfo }) {
       };
 
       qc.setQueryData(["play"], (currentData) => {
-        console.log("currentData", currentData);
+        console.log("currentData1", currentData);
+
         return {
           ...currentData,
           tracks: [...currentData.tracks, newTrack],
@@ -201,6 +210,8 @@ function MusicPage({ playlistInfo }) {
       return post;
     } catch (err) {
       throw err;
+    } finally {
+      setIsAdding(false);
     }
   };
   const deleteSong = async (trackId, anonify_index) => {
@@ -254,7 +265,7 @@ function MusicPage({ playlistInfo }) {
           <a href='/'>Anonify</a>
         </h1>
         <div className='bg-black overflow-auto flex-grow h-screen max-w-[85vh]'>
-          {playlists.isSuccess && playlistInfo.tracks.length > 0 && (
+          {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
                 {playlistInfo.playlistName}
@@ -268,25 +279,24 @@ function MusicPage({ playlistInfo }) {
             </>
           )}
           {/*Source for loading icon: https://tailwindflex.com/tag/loading*/}
-          {!playlistInfo.tracks ||
-            (playlistInfo.tracks.length === 0 && (
-              <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
-                <div>
-                  <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
-                    Waiting for you to add music to:
-                    <br />
-                    {playlistInfo.name}
-                  </h2>
-                </div>
-                <br />
-                <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
-                  <span className='sr-only'>Loading...</span>
-                  <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                  <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                  <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
-                </div>
+          {playlists.data?.tracks.length === 0 && (
+            <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
+              <div>
+                <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
+                  Waiting for you to add music to:
+                  <br />
+                  {playlistInfo.name}
+                </h2>
               </div>
-            ))}
+              <br />
+              <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
+                <span className='sr-only'>Loading...</span>
+                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+              </div>
+            </div>
+          )}
           {playlists.isError ? (
             <div className='w-full h-screen flex flex-grow justify-center items-center'>
               Playlist error...
@@ -326,19 +336,6 @@ function MusicPage({ playlistInfo }) {
                   disabled={isAdding}
                   className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full disabled:bg-gray-500 disabled:text-black disabled:border-black'
                   onClick={() => {
-                    setIsAdding(true);
-                    setCooldown(2);
-                    const countdown = setInterval(() => {
-                      setCooldown((prevCooldown) => {
-                        if (prevCooldown <= 1) {
-                          clearInterval(countdown);
-                          setIsAdding(false);
-                          return 0;
-                        } else {
-                          return prevCooldown - 1;
-                        }
-                      });
-                    }, 1000);
                     const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
                     const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
                     if (spotifyUrlMatch) {
@@ -350,7 +347,7 @@ function MusicPage({ playlistInfo }) {
                     //setAddSongField("");
                   }}
                 >
-                  {isAdding ? `Add to list (${cooldown})` : "Add to list"}
+                  Add to list
                 </button>
               </div>
               <div className='flex justify-end'>
@@ -380,19 +377,20 @@ function MusicPage({ playlistInfo }) {
                   Auth Spotify + Create Playlist
                 </button>
               </div>
-              {/*
-              <div className='flex justify-end'>
-                <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
-                  onClick={() => {
-                    console.log(playlistInfo);
-                    console.log(playlists.data);
-                    console.log(cookies.songsAddedByUser);
-                  }}
-                >
-                  Debug
-                </button>
-              </div>*/}
+              {
+                <div className='flex justify-end'>
+                  <button
+                    className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
+                    onClick={() => {
+                      console.log(playlistInfo);
+                      console.log(playlists.data);
+                      console.log(cookies.songsAddedByUser);
+                    }}
+                  >
+                    Debug
+                  </button>
+                </div>
+              }
               {addSongToPlaylist.isError && (
                 <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                   <h2>Error...</h2>
