@@ -36,34 +36,41 @@ function MusicPage({ playlistInfo }) {
   }
 
   async function insert(payload) {
-    //if the track is already in the playlist, don't add it.
+    //check if the song has already been optmisically added in the playlist
+    //if it has, don't do anything.
+    // else, add the song to the playlist.
+    const isSongAdded = playlists.data.tracks.some(
+      (song) => song.anonify_index === payload.new.id
+    );
 
-    try {
-      const response = await axios.get(
-        `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    if (!isSongAdded) {
+      try {
+        const response = await axios.get(
+          `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      console.log("response", response.data);
-      const newTrack = {
-        ...response.data.tracks[0],
-        anonify_index: payload.new.id,
-        votes: 0,
-      };
-
-      qc.setQueryData(["play"], (currentData) => {
-        console.log("currentData", currentData);
-        return {
-          ...currentData,
-          tracks: [...currentData.tracks, newTrack],
+        console.log("response", response.data);
+        const newTrack = {
+          ...response.data.tracks[0],
+          anonify_index: payload.new.id,
+          votes: 0,
         };
-      });
-    } catch (error) {
-      console.error("Failed to insert track:", error);
+
+        qc.setQueryData(["play"], (currentData) => {
+          console.log("currentData", currentData);
+          return {
+            ...currentData,
+            tracks: [...currentData.tracks, newTrack],
+          };
+        });
+      } catch (error) {
+        console.error("Failed to insert track:", error);
+      }
     }
   }
 
@@ -183,7 +190,6 @@ function MusicPage({ playlistInfo }) {
         votes: 0,
       };
 
-      /*
       qc.setQueryData(["play"], (currentData) => {
         console.log("currentData", currentData);
         return {
@@ -191,7 +197,6 @@ function MusicPage({ playlistInfo }) {
           tracks: [...currentData.tracks, newTrack],
         };
       });
-      */
 
       return post;
     } catch (err) {
