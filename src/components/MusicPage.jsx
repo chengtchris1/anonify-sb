@@ -26,6 +26,7 @@ function MusicPage({ playlistInfo }) {
     //check if the song has already been optmisically deleted in the playlist
     //if it has, don't do anything.
     // else, remove the song from the playlist.
+    console.log("payload", payload);
     qc.setQueryData(["play"], (oldData) => {
       const newTracks = oldData.tracks.filter((song) => {
         return song.anonify_index !== payload.old.id;
@@ -36,14 +37,6 @@ function MusicPage({ playlistInfo }) {
 
   async function insert(payload) {
     //if the track is already in the playlist, don't add it.
-    if (
-      playlists.data.tracks.some((song) => {
-        console.log("song", song);
-        return song.anonify_index === payload.new.id;
-      })
-    ) {
-      return;
-    }
 
     try {
       const response = await axios.get(
@@ -190,6 +183,7 @@ function MusicPage({ playlistInfo }) {
         votes: 0,
       };
 
+      /*
       qc.setQueryData(["play"], (currentData) => {
         console.log("currentData", currentData);
         return {
@@ -197,6 +191,7 @@ function MusicPage({ playlistInfo }) {
           tracks: [...currentData.tracks, newTrack],
         };
       });
+      */
 
       return post;
     } catch (err) {
