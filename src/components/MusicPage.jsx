@@ -268,7 +268,7 @@ function MusicPage({ playlistInfo }) {
         <h1 className='text-6xl font-bold text-center m-5 px-40'>
           <a href='/'>Anonify</a>
         </h1>
-        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 py-5 m-5 rounded-2xl'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] max-w-4xl px-5 py-5 m-5 rounded-2xl'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
