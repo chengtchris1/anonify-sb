@@ -42,6 +42,13 @@ function MusicPage({ playlistInfo }) {
     // else, add the song to the playlist.
 
     //we no longer need to check if the song is already in the playlist because we are now filtering out duplicates in MusicList.jsx
+
+    //Need to check if ID from playlistInfo.id is the same as the path in the payload.
+    //If it is, then we can add the song to the playlist.
+    //If it is not, then we should not add the song to the playlist.
+    if (playlistInfo.id !== payload.new.playlist_id) {
+      return;
+    }
     setIsAdding(true);
     console.log("payload from insert()", payload);
     try {
@@ -89,7 +96,11 @@ function MusicPage({ playlistInfo }) {
     })
     .on(
       "postgres_changes",
-      { event: "INSERT", schema: "public", table: "tracks" },
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "tracks",
+      },
       (p) => {
         qc.invalidateQueries({ queryKey: ["play"] });
         qc.invalidateQueries({ queryKey: ["path"] });
@@ -266,7 +277,9 @@ function MusicPage({ playlistInfo }) {
     <>
       <div className='flex flex-wrap justify-evenly bg-base-100'>
         <h1 className='text-6xl font-bold text-center m-5 px-40'>
-          <a href='/'>Anonify</a>
+          <a href='/'>
+            <span className='text-primary'>Anonify</span>
+          </a>
         </h1>
         <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit first-letter:max-w-4xl px-5 py-5 m-5 rounded-2xl'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
