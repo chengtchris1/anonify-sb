@@ -311,11 +311,15 @@ function MusicPage({ playlistInfo }) {
             </div>
           ) : null}
           {playlists.isLoading ? (
-            <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
-              <span className='sr-only'>Loading...</span>
-              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+            <div className='h-full flex flex-col justify-center items-center'>
+              <div className='flex items-center h-[70vh]'>
+                <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
+                  <span className='sr-only'>Loading...</span>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
