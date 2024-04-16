@@ -276,12 +276,12 @@ function MusicPage({ playlistInfo }) {
   return playlistInfo ? (
     <>
       <div className='flex flex-wrap justify-evenly bg-base-100'>
-        <h1 className='text-6xl font-bold text-center m-5 px-40'>
+        <h1 className='text-6xl font-bold text-center m-5 px-30'>
           <a href='/'>
             <span className='text-primary'>Anonify</span>
           </a>
         </h1>
-        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit first-letter:max-w-4xl px-5 py-5 m-5 rounded-2xl'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>

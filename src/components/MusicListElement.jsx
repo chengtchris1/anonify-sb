@@ -19,7 +19,7 @@ const MusicListElement = ({
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className='card card-side bg-base-100 shadow-xl max-h-56 my-5 min-w-[720px]'>
+    <div className='card card-side bg-base-100 shadow-xl max-h-56 my-5'>
       <figure>
         <img className='h-56' src={albumArt} alt={album} />
       </figure>
