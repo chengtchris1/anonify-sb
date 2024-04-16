@@ -35,36 +35,43 @@ function MusicPage({ playlistInfo }) {
   }
 
   async function insert(payload) {
-    console.log("insert", payload);
-    console.log(token);
-    //Call axios to get the song info.
-    //Add the song to the playlist.
-    //Update the playlist.
-    axios
-      .get(
+    //if the track is already in the playlist, don't add it.
+    if (
+      playlists.data.tracks.some((song) => {
+        console.log("song", song);
+        return song.anonify_index === payload.new.id;
+      })
+    ) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(
         `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-      .then((response) => {
-        console.log("response", response.data);
-        const newTrack = {
-          ...response.data.tracks[0],
-          anonify_index: payload.new.id,
-          votes: 0,
-        };
+      );
 
-        qc.setQueryData(["play"], (currentData) => {
-          console.log("currentData", currentData);
-          return {
-            ...currentData,
-            tracks: [...currentData.tracks, newTrack],
-          };
-        });
+      console.log("response", response.data);
+      const newTrack = {
+        ...response.data.tracks[0],
+        anonify_index: payload.new.id,
+        votes: 0,
+      };
+
+      qc.setQueryData(["play"], (currentData) => {
+        console.log("currentData", currentData);
+        return {
+          ...currentData,
+          tracks: [...currentData.tracks, newTrack],
+        };
       });
+    } catch (error) {
+      console.error("Failed to insert track:", error);
+    }
   }
 
   const activeUsers = supabase.channel(window.location.pathname);
@@ -218,9 +225,6 @@ function MusicPage({ playlistInfo }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      setTimeout(() => {
-        qc.invalidateQueries(["play"]);
-      }, 1000);
       console.log("thedata", data);
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = [...nextSongs, `${data.data.id}`];
@@ -234,7 +238,7 @@ function MusicPage({ playlistInfo }) {
     },
     onSuccess: (data) => {
       console.log("Delete song res", data);
-      qc.invalidateQueries(["play"]);
+
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = nextSongs.filter((song) => song !== data);
       setCookie("songsAddedByUser", nextSongs, { path: "/" });
