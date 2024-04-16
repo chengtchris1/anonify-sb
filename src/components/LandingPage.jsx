@@ -37,8 +37,8 @@ function LandingPage() {
   };
 
   return (
-    <div className='bg-landingbg bg-cover hue-rotate-270'>
-      <div className='flex items-center justify-center min-h-screen backdrop-blur-md'>
+    <div className='bg-base-100 bg-cover hue-rotate-270 h-full'>
+      <div className='flex items-center justify-center backdrop-blur-md'>
         <div className='px-10 py-8 flex flex-col justify-center bg-white  bg-opacity-50 rounded-xl border-solid border-white border-2'>
           <h1 className='text-black text-6xl font-bold text-center pb-4'>
             Anonify

@@ -264,11 +264,11 @@ function MusicPage({ playlistInfo }) {
   };
   return playlistInfo ? (
     <>
-      <div className='flex flex-wrap justify-around'>
-        <h1 className='text-6xl font-bold text-center m-5'>
+      <div className='flex flex-wrap justify-evenly bg-base-100'>
+        <h1 className='text-6xl font-bold text-center m-5 px-40'>
           <a href='/'>Anonify</a>
         </h1>
-        <div className='bg-black overflow-auto flex-grow h-screen max-w-[85vh]'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 py-5 m-5 rounded-2xl'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
@@ -284,7 +284,7 @@ function MusicPage({ playlistInfo }) {
           )}
           {/*Source for loading icon: https://tailwindflex.com/tag/loading*/}
           {playlists.data?.tracks.length === 0 && (
-            <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
+            <div className='w-full h-screen flex flex-grow justify-center h-fill items-center flex-col'>
               <div>
                 <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
                   Waiting for you to add music to:
@@ -293,70 +293,110 @@ function MusicPage({ playlistInfo }) {
                 </h2>
               </div>
               <br />
-              <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
+              <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
                 <span className='sr-only'>Loading...</span>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
               </div>
             </div>
           )}
           {playlists.isError ? (
-            <div className='w-full h-screen flex flex-grow justify-center items-center'>
+            <div className='w-full h-[80vh] flex flex-grow justify-center items-center'>
               Playlist error...
             </div>
           ) : null}
           {playlists.isLoading ? (
-            <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
+            <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
               <span className='sr-only'>Loading...</span>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+              <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
             </div>
           ) : null}
         </div>
         <div className='flex grow-1 min-w-fit justify-center'>
-          <div className='mx-5 my-10'>
-            <label className='font-bold' htmlFor='songURI'>
-              Enter Track ID or Spotify URL:
-              <br />
-              <input
-                className='border border-gray-400 p-2 rounded-lg text-center mx-auto w-96 my-1'
-                name='songURI'
-                value={addSongField}
-                onChange={(e) => {
-                  console.log(e.target.value);
-                  setAddSongField(e.target.value);
-                }}
-              />
-              {addSongToPlaylist.isLoading && (
-                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  Loading...
-                </div>
-              )}
-              <br />
-              <div className='flex justify-end'>
-                <button
-                  disabled={isAdding}
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full disabled:bg-gray-500 disabled:text-black disabled:border-black'
-                  onClick={() => {
-                    const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
-                    const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
-                    if (spotifyUrlMatch) {
-                      setAddSongField(spotifyUrlMatch[1]);
-                    } else {
-                      console.log("Not a valid Spotify URL");
-                    }
-                    addSongToPlaylist.mutate();
-                    //setAddSongField("");
-                  }}
-                >
-                  Add to list
-                </button>
+          <div className='mx-5 my-10 px-20'>
+            Sort by:{" "}
+            <div className='dropdown dropdown-hover'>
+              <div tabIndex={0} role='button' className='btn btn-primary m-0'>
+                <span className='underline'>
+                  {currentSort === "votes" && "votes"}
+                  {currentSort === "orderadded" && "order added"}
+                </span>
               </div>
-              <div className='flex justify-end'>
-                <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+              <ul
+                tabIndex={0}
+                className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
+              >
+                <li>
+                  <a
+                    className={`${
+                      currentSort === "votes" ? "bg-primary" : "bg-transparent"
+                    } hover:text-white`}
+                    onClick={() => {
+                      setCurrentSort("votes");
+                    }}
+                  >
+                    Votes
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={`${
+                      currentSort === "orderadded"
+                        ? "bg-primary"
+                        : "bg-transparent"
+                    } hover:text-white`}
+                    onClick={() => {
+                      setCurrentSort("orderadded");
+                    }}
+                  >
+                    Order added
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <br />
+            <span className='text-primary'>Enter Track ID or Spotify URL:</span>
+            <br />
+            <input
+              className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1'
+              name='songURI'
+              value={addSongField}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setAddSongField(e.target.value);
+              }}
+            />
+            {addSongToPlaylist.isLoading && (
+              <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                Loading...
+              </div>
+            )}
+            <br />
+            <div className='flex justify-end'>
+              <button
+                disabled={isAdding}
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
+                onClick={() => {
+                  const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
+                  const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
+                  if (spotifyUrlMatch) {
+                    setAddSongField(spotifyUrlMatch[1]);
+                  } else {
+                    console.log("Not a valid Spotify URL");
+                  }
+                  addSongToPlaylist.mutate();
+                  //setAddSongField("");
+                }}
+              >
+                Add to list
+              </button>
+            </div>
+            <div className='flex justify-end'>
+              {/*<button
+                  className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
                   onClick={() => {
                     if (currentSort === "votes") {
                       setCurrentSort("orderadded");
@@ -367,46 +407,45 @@ function MusicPage({ playlistInfo }) {
                 >
                   {currentSort === "votes" && "Change sort to order added"}
                   {currentSort === "orderadded" && "Change sort to votes"}
-                </button>
-              </div>
+                </button>*/}
+            </div>
+            <div className='flex justify-end'>
+              <button
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
+                onClick={() => {
+                  window.open(
+                    `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
+                  );
+                }}
+              >
+                Auth Spotify + Create Playlist
+              </button>
+            </div>
+            {
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
                   onClick={() => {
-                    window.open(
-                      `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
-                    );
+                    console.log(playlistInfo);
+                    console.log(playlists.data);
+                    console.log(cookies.songsAddedByUser);
                   }}
                 >
-                  Auth Spotify + Create Playlist
+                  Debug
                 </button>
               </div>
-              {
-                <div className='flex justify-end'>
-                  <button
-                    className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
-                    onClick={() => {
-                      console.log(playlistInfo);
-                      console.log(playlists.data);
-                      console.log(cookies.songsAddedByUser);
-                    }}
-                  >
-                    Debug
-                  </button>
-                </div>
-              }
-              {addSongToPlaylist.isError && (
-                <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  <h2>Error...</h2>
-                  {<h4>{addSongToPlaylist.error.message}</h4>}
-                </div>
-              )}
-              {addSongToPlaylist.isSuccess && (
-                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  Added song!
-                </div>
-              )}
-            </label>
+            }
+            {addSongToPlaylist.isError && (
+              <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                <h2>Error...</h2>
+                {<h4>{addSongToPlaylist.error.message}</h4>}
+              </div>
+            )}
+            {addSongToPlaylist.isSuccess && (
+              <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                Added song!
+              </div>
+            )}
           </div>
           {/*
             <button
