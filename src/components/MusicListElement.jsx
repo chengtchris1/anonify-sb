@@ -70,24 +70,34 @@ const MusicListElement = ({
           </div>
         </div>
       </div>
-      <div className='card-actions justify-end flex'>
-        <button className='btn btn-square btn-outline btn-sm bg-transparent hover:bg-opacity-50'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            className='h-6 w-6 text-accent'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
+      {enableDelete && (
+        <div className='card-actions justify-end flex'>
+          <button
+            onClick={() => {
+              console.log(anonify_index);
+              console.log(id);
+              handleDelete(id, anonify_index);
+            }}
+            className='btn btn-square btn-outline btn-sm bg-transparent
+            hover:bg-opacity-50'
           >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              d='M6 18L18 6M6 6l12 12'
-            />
-          </svg>
-        </button>
-      </div>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              className='h-6 w-6 text-accent'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
