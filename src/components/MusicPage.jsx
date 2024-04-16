@@ -399,6 +399,9 @@ function MusicPage({ playlistInfo }) {
                   //setAddSongField("");
                 }}
               >
+                {addSongToPlaylist.isLoading && (
+                  <span class='loading loading-spinner'></span>
+                )}
                 Add to list
               </button>
             </div>
@@ -449,11 +452,12 @@ function MusicPage({ playlistInfo }) {
                 {<h4>{addSongToPlaylist.error.message}</h4>}
               </div>
             )}
-            {addSongToPlaylist.isSuccess && (
-              <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+            {addSongToPlaylist.isSuccess &&
+              {
+                /*<div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                 Added song!
-              </div>
-            )}
+            </div>*/
+              }}
           </div>
           {/*
             <button
