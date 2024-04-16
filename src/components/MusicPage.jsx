@@ -268,7 +268,7 @@ function MusicPage({ playlistInfo }) {
         <h1 className='text-6xl font-bold text-center m-5 px-40'>
           <a href='/'>Anonify</a>
         </h1>
-        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] max-w-4xl px-5 py-5 m-5 rounded-2xl'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit first-letter:max-w-4xl px-5 py-5 m-5 rounded-2xl'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
@@ -284,20 +284,24 @@ function MusicPage({ playlistInfo }) {
           )}
           {/*Source for loading icon: https://tailwindflex.com/tag/loading*/}
           {playlists.data?.tracks.length === 0 && (
-            <div className='w-full h-screen flex flex-grow justify-center h-fill items-center flex-col'>
+            <div className='w-full flex flex-grow justify-center h-fill items-center flex-col'>
               <div>
-                <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
+                <h2 className='text-white text-2xl font-bold text-center p-3 m-5 '>
                   Waiting for you to add music to:
                   <br />
                   {playlistInfo.name}
                 </h2>
               </div>
               <br />
-              <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
-                <span className='sr-only'>Loading...</span>
-                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+              <div className='h-full flex flex-col justify-center items-center'>
+                <div className='flex items-center h-[70vh]'>
+                  <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
+                    <span className='sr-only'>Loading...</span>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
