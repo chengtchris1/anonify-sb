@@ -289,7 +289,7 @@ function MusicPage({ playlistInfo }) {
                 <h2 className='text-white text-2xl font-bold text-center p-3 m-5 '>
                   Waiting for you to add music to:
                   <br />
-                  {playlistInfo.name}
+                  {playlistInfo?.name}
                 </h2>
               </div>
               <br />
@@ -396,17 +396,20 @@ function MusicPage({ playlistInfo }) {
                     console.log("Not a valid Spotify URL");
                   }
                   addSongToPlaylist.mutate();
-                  //setAddSongField("");
                 }}
               >
-                {addSongToPlaylist.isLoading && (
-                  <span class='loading loading-spinner'></span>
+                {isAdding ? (
+                  <>
+                    <span class='loading loading-spinner'></span>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Add to playlist</span>
                 )}
-                Add to list
               </button>
             </div>
-            <div className='flex justify-end'>
-              {/*<button
+            {/*<div className='flex justify-end'>
+              <button
                   className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
                   onClick={() => {
                     if (currentSort === "votes") {
@@ -418,8 +421,8 @@ function MusicPage({ playlistInfo }) {
                 >
                   {currentSort === "votes" && "Change sort to order added"}
                   {currentSort === "orderadded" && "Change sort to votes"}
-                </button>*/}
-            </div>
+                </button>
+                </div>*/}
             <div className='flex justify-end'>
               <button
                 className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
@@ -452,12 +455,12 @@ function MusicPage({ playlistInfo }) {
                 {<h4>{addSongToPlaylist.error.message}</h4>}
               </div>
             )}
-            {addSongToPlaylist.isSuccess &&
+            {/*addSongToPlaylist.isSuccess &&
               {
-                /*<div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                 Added song!
-            </div>*/
-              }}
+            </div>
+              }*/}
           </div>
           {/*
             <button
