@@ -40,7 +40,6 @@ function MusicPage({ playlistInfo }) {
     //Call axios to get the song info.
     //Add the song to the playlist.
     //Update the playlist.
-    //Invalidate the query.
     axios
       .get(
         `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
