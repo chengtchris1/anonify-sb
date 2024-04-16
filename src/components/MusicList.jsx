@@ -46,7 +46,7 @@ const MusicList = ({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "inertia", velocity: 10 }}
+              transition={{ type: "spring", stiffness: 900, damping: 40 }}
             >
               <MusicListElement
                 key={song.anonify_index}
