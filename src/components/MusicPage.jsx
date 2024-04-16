@@ -26,18 +26,12 @@ function MusicPage({ playlistInfo }) {
     //check if the song has already been optmisically deleted in the playlist
     //if it has, don't do anything.
     // else, remove the song from the playlist.
-    console.log(payload);
-    console.log("qd", qc.getQueryData({ queryKey: ["play"] }));
-    await qc.cancelQueries({ queryKey: ["play"] });
-
-    await qc.setQueryData(["play"], (oldData) => {
+    qc.setQueryData(["play"], (oldData) => {
       const newTracks = oldData.tracks.filter((song) => {
         return song.anonify_index !== payload.old.id;
       });
       return { ...oldData, tracks: newTracks };
     });
-
-    await qc.invalidateQueries({ queryKey: ["play"] });
   }
 
   async function insert(payload) {
