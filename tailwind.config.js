@@ -26,7 +26,7 @@ export default {
         'reservebtn': '2px 2px 0px 1px #FFF4E0;',
       },
       backgroundImage: {
-        'landingbg': "url('./assets/bg.jpg')",
+        'landingbg': './assets/bg.jpg',
         backdropBlur: ['responsive']
       }
     },
