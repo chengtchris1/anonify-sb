@@ -19,13 +19,14 @@ function MusicPage({ playlistInfo }) {
   const qc = useQueryClient();
   async function handleDBChange(payload) {
     console.log("DB change", payload);
-    await qc.cancelQueries("play");
+    await qc.cancelQueries(["play"]);
     await qc.invalidateQueries(["play"]);
   }
   async function handleResponsiveDelete(payload) {
     //check if the song has already been optmisically deleted in the playlist
     //if it has, don't do anything.
     // else, remove the song from the playlist.
+
     console.log("payload", payload);
     qc.setQueryData(["play"], (oldData) => {
       const newTracks = oldData.tracks.filter((song) => {
@@ -39,52 +40,62 @@ function MusicPage({ playlistInfo }) {
     //check if the song has already been optmisically added in the playlist
     //if it has, don't do anything.
     // else, add the song to the playlist.
+
+    //we no longer need to check if the song is already in the playlist because we are now filtering out duplicates in MusicList.jsx
     setIsAdding(true);
     console.log("payload from insert()", payload);
-    const isSongAdded = playlists.data.tracks.some(
-      (song) => song.anonify_index === payload.new.id
-    );
-    console.log("isSongAdded", isSongAdded);
-    if (!isSongAdded) {
-      try {
-        const response = await axios.get(
-          `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+    try {
+      const response = await axios.get(
+        `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        console.log("response", response.data);
-        const newTrack = {
-          ...response.data.tracks[0],
-          anonify_index: payload.new.id,
-          votes: 0,
+      console.log("response", response.data);
+      const newTrack = {
+        ...response.data.tracks[0],
+        anonify_index: payload.new.id,
+        votes: 0,
+      };
+      console.log("newTrackInInsert", newTrack);
+      qc.setQueryData(["play"], (currentData) => {
+        console.log("currentData2", currentData);
+        return {
+          ...currentData,
+          tracks: [...currentData.tracks, newTrack],
         };
-        console.log("newTrackInInsert", newTrack);
-        qc.setQueryData(["play"], (currentData) => {
-          console.log("currentData2", currentData);
-          return {
-            ...currentData,
-            tracks: [...currentData.tracks, newTrack],
-          };
-        });
-      } catch (error) {
-        console.error("Failed to insert track:", error);
-      } finally {
-        setIsAdding(false);
-      }
+      });
+    } catch (error) {
+      console.error("Failed to insert track:", error);
+    } finally {
+      setIsAdding(false);
     }
   }
 
   const activeUsers = supabase.channel(window.location.pathname);
   activeUsers
+    .on("presence", { event: "sync" }, () => {
+      const newState = activeUsers.presenceState();
+      console.log("sync", newState);
+    })
+    .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      console.log("join", key, newPresences);
+    })
+    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      console.log("leave", key, leftPresences);
+    })
     .on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "tracks" },
       (p) => {
-        insert(p);
+        qc.invalidateQueries({ queryKey: ["play"] });
+        qc.invalidateQueries({ queryKey: ["path"] });
+        qc.prefetchQuery({ queryKey: ["path"] })
+          .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
+          .then(() => insert(p));
       }
     )
     .on(
@@ -100,17 +111,7 @@ function MusicPage({ playlistInfo }) {
       }
     )
     .subscribe();
-  /*
-    .on("presence", { event: "sync" }, () => {
-      const newState = activeUsers.presenceState();
-      console.log("sync", newState);
-    })
-    .on("presence", { event: "join" }, ({ key, newPresences }) => {
-      console.log("join", key, newPresences);
-    })
-    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-      console.log("leave", key, leftPresences);
-    })*/
+
   const getToken = async () => {
     let token = await axios.get("/auth");
     return token.data;
@@ -176,7 +177,10 @@ function MusicPage({ playlistInfo }) {
       trackId: addSongField,
     });
     console.log("Post", post);
-    //await qc.cancelQueries(["play"]);
+    await qc.invalidateQueries(["path"]);
+    await qc.invalidateQueries(["play"]);
+    await qc.prefetchQuery(["path"]);
+    await qc.prefetchQuery(["play"]);
     let response;
     try {
       response = await axios.get(
