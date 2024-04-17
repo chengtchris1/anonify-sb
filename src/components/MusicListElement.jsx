@@ -19,18 +19,18 @@ const MusicListElement = ({
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className='card card-side bg-base-100 shadow-xl flex flex-col sm:flex-row  items-center my-3 sm:my-5'>
+    <div className='card card-side bg-base-100 shadow-xl flex flex-row  items-center my-3 sm:my-5'>
       <div className='flex-1 h-fit flex justify-center'>
         <figure>
           <img
-            className='w-40 h-40 sm:w-56 sm:h-auto object-cover rounded-lg'
+            className='w-20 h-20 sm:w-56 sm:h-auto object-cover rounded-lg'
             src={albumArt}
             alt={album}
           />
         </figure>
       </div>
 
-      <div className='card-body flex-4'>
+      <div className='card-body flex-4 m-1 p-0'>
         <h2 className='card-title text-primary '>
           <span className='m-0 whitespace-normal break-words'> {title}</span>
         </h2>
@@ -57,7 +57,7 @@ const MusicListElement = ({
       <div className='flex flex-col justify-between items-center'>
         <div className='absolute top-0 right-0'>
           {enableDelete && (
-            <div className='card-actions justify-end flex m-[2px]'>
+            <div className='card-actions justify-end flex'>
               <button
                 onClick={() => {
                   console.log(anonify_index);
@@ -87,7 +87,7 @@ const MusicListElement = ({
         </div>
         <div className='flex' />
         <div className='card-actions justify flex items-center'>
-          <div className='flex flex-row sm:flex-col-reverse items-center '>
+          <div className='flex flex-col-reverse items-center '>
             <button
               onClick={() => {
                 setLoading(true);
