@@ -286,7 +286,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           </h1>
           <ThemeSelector theme={theme} setTheme={handleThemeChange} />
         </div>
-        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-2xl md:min-w-[720px] md:w-1/2 overflow-y-scroll'>
+        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-box md:min-w-[720px] md:w-1/2 overflow-y-scroll'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-primary text-3xl font-bold text-center'>
@@ -331,7 +331,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           {playlists.isLoading ? (
             <div className='h-full flex flex-col justify-center items-center'>
               <div className='flex items-center h-[70vh]'>
-                <div className='flex space-x-2 justify-center items-center bg-white h-fill dark:invert'>
+                <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
                   <span className='sr-only'>Loading...</span>
                   <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                   <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
