@@ -5,7 +5,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   daisyui: {
-    themes: ["synthwave", "light", "dark"],// false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]
+    themes: ["synthwave", "light", "dark", "sunset", "night", "winter", "forest", "sea", "love", "cupcake", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "sky", "lofi", "pastel", "dracula"],
     darkTheme: "dark", // name of one of the included themes for dark mode
     base: false, // applies background color and foreground color for root element by default
     styled: true, // include daisyUI colors and design decisions for all components

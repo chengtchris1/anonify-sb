@@ -7,12 +7,37 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@supabase/supabase-js";
 
 function App() {
+  const themesList = [
+    "synthwave",
+    "light",
+    "dark",
+    "sunset",
+    "night",
+    "winter",
+    "forest",
+    "sea",
+    "love",
+    "cupcake",
+    "cyberpunk",
+    "valentine",
+    "halloween",
+    "garden",
+    "forest",
+    "aqua",
+    "sky",
+    "lofi",
+    "pastel",
+    "dracula",
+  ];
   const [playlistInfo, setPlaylistInfo] = useState(window.location.pathname);
   const [theme, setTheme] = useState(() => {
     const localTheme = localStorage.getItem("theme");
     return localTheme
       ? JSON.parse(localTheme)
-      : { synthwave: true, light: false, dark: false };
+      : themesList.reduce((acc, item) => {
+          acc[item] = false;
+          return acc;
+        }, {});
   });
   useEffect(() => {
     let currentTheme = Object.keys(theme).find((key) => theme[key]);
