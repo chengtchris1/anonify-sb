@@ -327,7 +327,7 @@ function MusicPage({ playlistInfo }) {
         <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
-              <h2 className='text-white text-3xl font-bold text-center'>
+              <h2 className='text-primary text-3xl font-bold text-center'>
                 {playlistInfo.playlistName}
               </h2>
               <MusicList
@@ -342,7 +342,7 @@ function MusicPage({ playlistInfo }) {
           {playlists.data?.tracks.length === 0 && (
             <div className='w-full flex flex-grow justify-center h-fill items-center flex-col'>
               <div>
-                <h2 className='text-white text-2xl font-bold text-center p-3 m-5 '>
+                <h2 className='text-primary text-2xl font-bold text-center p-3 m-5 '>
                   Waiting for you to add music to:
                   <br />
                   {playlistInfo?.name}
