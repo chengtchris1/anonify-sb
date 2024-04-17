@@ -39,7 +39,7 @@ function LandingPage({ theme, handleThemeChange }) {
   return (
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
       <div className='flex items-center'>
-        <div className='px-10 py-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-xl border-solid border-neutral-content'>
+        <div className='px-10 py-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
           <h1 className='text-primary text-6xl font-bold text-center pb-4'>
             Anonify
           </h1>
@@ -53,15 +53,18 @@ function LandingPage({ theme, handleThemeChange }) {
             className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
             placeholder='Enter playlist name'
           />
-          <span className='text-primary'>Song limit (0 = None):</span>
-          <input
+
+          {/*
+            <span className='text-primary'>
+              Song limit (0 = None):
+            </span> <input
             type='number'
             name='songLimit'
             value={formInfo.songLimit || 0}
             onChange={(e) => handleFormChange(e)}
             className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
             placeholder='Enter song limit, 0 = None'
-          />
+            />*/}
           <button
             onClick={() => {
               generateURL();

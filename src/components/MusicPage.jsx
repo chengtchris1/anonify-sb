@@ -286,7 +286,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           </h1>
           <ThemeSelector theme={theme} setTheme={handleThemeChange} />
         </div>
-        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-2xl md:min-w-[720px] md:w-1/2'>
+        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-2xl md:min-w-[720px] md:w-1/2 overflow-y-scroll'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-primary text-3xl font-bold text-center'>

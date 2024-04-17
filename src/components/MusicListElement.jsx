@@ -19,11 +19,11 @@ const MusicListElement = ({
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className='card card-side bg-base-100 shadow-xl flex flex-row  items-center my-3 sm:my-5'>
-      <div className='flex-1 h-fit flex justify-center'>
-        <figure>
+    <div className='card card-side bg-base-100 shadow-xl flex flex-row  items-center my-3 sm:my-5 overflow-clip'>
+      <div className=''>
+        <figure className='flex-1 h-fit flex justify-center object-cover'>
           <img
-            className='w-20 h-20 sm:w-56 sm:h-auto object-cover rounded-lg'
+            className='w-20 h-20 sm:w-56 sm:h-auto object-cover overflow-hidden '
             src={albumArt}
             alt={album}
           />
