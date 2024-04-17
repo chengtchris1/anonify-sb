@@ -4,22 +4,20 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
 import { createClient } from "@supabase/supabase-js";
+import ThemeSelector from "./ThemeSelector";
 let token;
 const supabase = createClient(
   "https://mbrefcgxduvrtayfrchk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1icmVmY2d4ZHV2cnRheWZyY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMwMzQ2MDYsImV4cCI6MjAyODYxMDYwNn0.cK4-JJZQ-vNXg3ahWJwPzqu4c_aGCWpAn1ZRESu4R2I"
 );
 
-function MusicPage({ playlistInfo }) {
-  const [theme, setTheme] = React.useState("synthwave");
+function MusicPage({ playlistInfo, theme, handleThemeChange }) {
+  //const [theme, setTheme] = React.useState("synthwave");
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
   const [isAdding, setIsAdding] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-  useEffect(() => {
-    document.querySelector("html").setAttribute("data-theme", theme);
-  }, [theme]);
   const qc = useQueryClient();
   async function handleDBChange(payload) {
     console.log("DB change", payload);
@@ -286,43 +284,7 @@ function MusicPage({ playlistInfo }) {
               <span className='text-primary'>Anonify</span>
             </a>
           </h1>
-          <div className='dropdown dropdown-hover'>
-            <div tabIndex={0} role='button' className='btn btn-xs btn-primary'>
-              <span className='underline'>Theme</span>
-            </div>
-            <ul
-              tabIndex={0}
-              className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
-              onMouseLeave={() => {}}
-            >
-              <li>
-                <a
-                  className={`${
-                    theme === "light" ? "bg-primary-content" : "bg-transparent"
-                  }`}
-                  onClick={() => {
-                    setTheme("light");
-                  }}
-                >
-                  Light
-                </a>
-              </li>
-              <li>
-                <a
-                  className={`${
-                    theme === "synthwave"
-                      ? "bg-primary-content"
-                      : "bg-transparent"
-                  }`}
-                  onClick={() => {
-                    setTheme("synthwave");
-                  }}
-                >
-                  Synthwave
-                </a>
-              </li>
-            </ul>
-          </div>
+          <ThemeSelector theme={theme} setTheme={handleThemeChange} />
         </div>
         <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (

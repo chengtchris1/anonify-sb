@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
-
-function LandingPage() {
+import ThemeSelector from "./ThemeSelector";
+function LandingPage({ theme, handleThemeChange }) {
   //const [songLimit, setSongLimit] = useState('');
   const [formInfo, setFormInfo] = useState({
     playlistName: "",
@@ -43,6 +43,7 @@ function LandingPage() {
           <h1 className='text-primary text-6xl font-bold text-center pb-4'>
             Anonify
           </h1>
+          <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           <span className='text-primary'>Enter playlist name:</span>
           <input
             type='text'
