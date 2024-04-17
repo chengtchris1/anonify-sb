@@ -280,13 +280,14 @@ function MusicPage({ playlistInfo }) {
   return playlistInfo ? (
     <>
       <div className='flex flex-wrap justify-evenly bg-base-100'>
-        <div>
+        <div className='flex flex-col items-center'>
+          <h1 className='text-6xl font-bold text-center m-5 px-30'>
+            <a href='/'>
+              <span className='text-primary'>Anonify</span>
+            </a>
+          </h1>
           <div className='dropdown dropdown-hover'>
-            <div
-              tabIndex={0}
-              role='button'
-              className='btn btn-xs btn-primary ml-5 mt-10'
-            >
+            <div tabIndex={0} role='button' className='btn btn-xs btn-primary'>
               <span className='underline'>Theme</span>
             </div>
             <ul
@@ -297,8 +298,8 @@ function MusicPage({ playlistInfo }) {
               <li>
                 <a
                   className={`${
-                    theme === "light" ? "bg-primary" : "bg-transparent"
-                  } hover:text-white`}
+                    theme === "light" ? "bg-primary-content" : "bg-transparent"
+                  }`}
                   onClick={() => {
                     setTheme("light");
                   }}
@@ -309,8 +310,10 @@ function MusicPage({ playlistInfo }) {
               <li>
                 <a
                   className={`${
-                    theme === "synthwave" ? "bg-primary" : "bg-transparent"
-                  } hover:text-white`}
+                    theme === "synthwave"
+                      ? "bg-primary-content"
+                      : "bg-transparent"
+                  }`}
                   onClick={() => {
                     setTheme("synthwave");
                   }}
@@ -320,11 +323,6 @@ function MusicPage({ playlistInfo }) {
               </li>
             </ul>
           </div>
-          <h1 className='text-6xl font-bold text-center m-5 px-30'>
-            <a href='/'>
-              <span className='text-primary'>Anonify</span>
-            </a>
-          </h1>
         </div>
         <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (

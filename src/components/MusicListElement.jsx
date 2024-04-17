@@ -27,7 +27,7 @@ const MusicListElement = ({
         <h2 className='card-title text-primary'>{title}</h2>
         <p className='text-secondary'>{artist}</p>
         <p className='text-secondary'>{album}</p>
-        <div className='card-actions justify'>
+        <div className='card-actions justify flex items-center'>
           <div>
             <button
               onClick={() => {
@@ -36,23 +36,23 @@ const MusicListElement = ({
                   setLoading(false);
                 });
               }}
-              className='btn btn-outline btn-primary text-2xl'
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg'
             >
               -
             </button>
-            <span className='p-5 text-2xl'>{votes}</span>
+            <span className='p-3 text-lg'>{votes}</span>
             <button
               onClick={() => {
                 Axios.patch(`/${anonify_index}/upvote`).then(() => {
                   setLoading(false);
                 });
               }}
-              className='btn btn-outline btn-primary text-2xl'
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg '
             >
               +
             </button>
           </div>
-          <div>
+          <div className='flex items-center'>
             {previewUrl !== null ? (
               <>
                 <span className='card-actions justify-end'>
