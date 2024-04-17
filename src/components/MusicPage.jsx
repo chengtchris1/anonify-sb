@@ -277,8 +277,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   };
   return playlistInfo ? (
     <>
-      <div className='flex flex-col min-w-fit md:flex-row justify-evenly bg-base-100 md:w-1/4'>
-        <div className='flex flex-col items-center md:max-w-52 md:w-1/3'>
+      <div className='flex flex-col min-w-[100%] md:flex-row justify-between bg-base-100 md:w-1/4'>
+        <div className='flex flex-col items-center m-5 md:max-w-52 md:w-1/3'>
           <h1 className='text-6xl font-bold text-center m-5 px-30'>
             <a href='/'>
               <span className='text-primary'>Anonify</span>
@@ -286,7 +286,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           </h1>
           <ThemeSelector theme={theme} setTheme={handleThemeChange} />
         </div>
-        <div className='bg-primary-content flex-grow h-[96vh] px-0 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/2 min-w-80'>
+        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-2xl md:min-w-[720px] md:w-1/2'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-primary text-3xl font-bold text-center'>
@@ -341,7 +341,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
             </div>
           ) : null}
         </div>
-        <div className='overflow-auto flex-grow px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/4 '>
+        <div className='px-10 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/3 min-w-100'>
           <div className='sm:mx-0 sm:my-10 sm:px-8'>
             <span className='font-sans text-primary'>Sort by: </span>
             <div className='dropdown dropdown-hover'>
