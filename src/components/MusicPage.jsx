@@ -448,7 +448,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 </div>*/}
             <div className='flex justify-end'>
               <button
-                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full h-20 lg:h-12'
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full h-auto text-wrap'
                 onClick={() => {
                   window.open(
                     `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
