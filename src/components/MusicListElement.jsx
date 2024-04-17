@@ -36,12 +36,12 @@ const MusicListElement = ({
         </h2>
         <p className='m-0 text-ellipsis max--fit break-words'>{artist}</p>
         <p className='m-0 text-ellipsis max--fit break-words'>{album}</p>
-        <div className='flex items-center'>
+        <div className='flex items-center justify-between'>
           {previewUrl !== null ? (
             <>
               <span className='card-actions justify-end'>
                 <audio
-                  className='w-36 sm:w-60 '
+                  className='w-24 sm:w-60 '
                   src={previewUrl}
                   controls
                   controlsList='nodownload'
@@ -49,8 +49,32 @@ const MusicListElement = ({
               </span>
             </>
           ) : (
-            <span className='text-gray-500'>No preview available</span>
+            <div className='text-gray-500'>No preview available</div>
           )}
+          <div className='flex flex-row items-center m-0'>
+            <button
+              onClick={() => {
+                setLoading(true);
+                Axios.patch(`/${anonify_index}/downvote`).then(() => {
+                  setLoading(false);
+                });
+              }}
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg'
+            >
+              -
+            </button>
+            <span className='text-lg mx-2'>{votes}</span>
+            <button
+              onClick={() => {
+                Axios.patch(`/${anonify_index}/upvote`).then(() => {
+                  setLoading(false);
+                });
+              }}
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg'
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
 
@@ -65,7 +89,7 @@ const MusicListElement = ({
                   handleDelete(id, anonify_index);
                 }}
                 className='btn btn-square btn-outline btn-sm bg-primary
-            hover:bg-opacity-50'
+            hover:bg-opacity-50 m-1'
               >
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
@@ -86,32 +110,7 @@ const MusicListElement = ({
           )}
         </div>
         <div className='flex' />
-        <div className='card-actions justify flex items-center'>
-          <div className='flex flex-col-reverse items-center '>
-            <button
-              onClick={() => {
-                setLoading(true);
-                Axios.patch(`/${anonify_index}/downvote`).then(() => {
-                  setLoading(false);
-                });
-              }}
-              className='btn btn-square btn-sm btn-outline btn-primary text-lg mb-4 sm:mb-0'
-            >
-              -
-            </button>
-            <span className='text-lg mx-2 mb-4 sm:mb-0'>{votes}</span>
-            <button
-              onClick={() => {
-                Axios.patch(`/${anonify_index}/upvote`).then(() => {
-                  setLoading(false);
-                });
-              }}
-              className='btn btn-square btn-sm btn-outline btn-primary text-lg mb-4 sm:mb-0'
-            >
-              +
-            </button>
-          </div>
-        </div>
+        <div className='card-actions justify flex items-center'></div>
       </div>
     </div>
   );
