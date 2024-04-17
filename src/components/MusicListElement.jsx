@@ -19,16 +19,75 @@ const MusicListElement = ({
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className='card card-side bg-base-100 shadow-xl max-h-56 my-5'>
-      <figure>
-        <img className='h-56' src={albumArt} alt={album} />
-      </figure>
-      <div className='card-body'>
-        <h2 className='card-title text-primary'>{title}</h2>
-        <p className='text-secondary'>{artist}</p>
-        <p className='text-secondary'>{album}</p>
+    <div className='card card-side bg-base-100 shadow-xl flex flex-col sm:flex-row  items-center my-3 sm:my-5'>
+      <div className='flex-1 h-fit flex justify-center'>
+        <figure>
+          <img
+            className='w-46 h-48 sm:w-56 sm:h-auto object-cover rounded-2xl'
+            src={albumArt}
+            alt={album}
+          />
+        </figure>
+      </div>
+
+      <div className='card-body flex-4'>
+        <h2 className='card-title text-primary '>
+          <span className='m-0 whitespace-normal break-words'> {title}</span>
+        </h2>
+        <p className='m-0 text-ellipsis max--fit break-words'>{artist}</p>
+        <p className='m-0 text-ellipsis max--fit break-words'>{album}</p>
+        <div className='flex items-center'>
+          {previewUrl !== null ? (
+            <>
+              <span className='card-actions justify-end'>
+                <audio
+                  className='w-36 sm:w-60 '
+                  src={previewUrl}
+                  controls
+                  controlsList='nodownload'
+                />
+              </span>
+            </>
+          ) : (
+            <span className='text-gray-500'>No preview available</span>
+          )}
+        </div>
+      </div>
+
+      <div className='flex flex-col justify-between items-center'>
+        <div className='absolute top-0 right-0'>
+          {enableDelete && (
+            <div className='card-actions justify-end flex m-[2px]'>
+              <button
+                onClick={() => {
+                  console.log(anonify_index);
+                  console.log(id);
+                  handleDelete(id, anonify_index);
+                }}
+                className='btn btn-square btn-outline btn-sm bg-primary
+            hover:bg-opacity-50'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6 text-accent'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M6 18L18 6M6 6l12 12'
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+        <div className='flex' />
         <div className='card-actions justify flex items-center'>
-          <div>
+          <div className='flex flex-row sm:flex-col-reverse items-center '>
             <button
               onClick={() => {
                 setLoading(true);
@@ -36,68 +95,24 @@ const MusicListElement = ({
                   setLoading(false);
                 });
               }}
-              className='btn btn-square btn-sm btn-outline btn-primary text-lg'
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg mb-4 sm:mb-0'
             >
               -
             </button>
-            <span className='p-3 text-lg'>{votes}</span>
+            <span className='text-lg mx-2 mb-4 sm:mb-0'>{votes}</span>
             <button
               onClick={() => {
                 Axios.patch(`/${anonify_index}/upvote`).then(() => {
                   setLoading(false);
                 });
               }}
-              className='btn btn-square btn-sm btn-outline btn-primary text-lg '
+              className='btn btn-square btn-sm btn-outline btn-primary text-lg mb-4 sm:mb-0'
             >
               +
             </button>
           </div>
-          <div className='flex items-center'>
-            {previewUrl !== null ? (
-              <>
-                <span className='card-actions justify-end'>
-                  <audio
-                    className='w-60'
-                    src={previewUrl}
-                    controls
-                    controlsList='nodownload'
-                  />
-                </span>
-              </>
-            ) : (
-              <span className='text-gray-500'>No preview available</span>
-            )}
-          </div>
         </div>
       </div>
-      {enableDelete && (
-        <div className='card-actions justify-end flex'>
-          <button
-            onClick={() => {
-              console.log(anonify_index);
-              console.log(id);
-              handleDelete(id, anonify_index);
-            }}
-            className='btn btn-square btn-outline btn-sm bg-primary
-            hover:bg-opacity-50'
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='h-6 w-6 text-accent'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M6 18L18 6M6 6l12 12'
-              />
-            </svg>
-          </button>
-        </div>
-      )}
     </div>
   );
 };

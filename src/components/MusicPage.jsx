@@ -324,7 +324,7 @@ function MusicPage({ playlistInfo }) {
             </ul>
           </div>
         </div>
-        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] min-w-fit px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-white text-3xl font-bold text-center'>
@@ -379,8 +379,8 @@ function MusicPage({ playlistInfo }) {
             </div>
           ) : null}
         </div>
-        <div className='flex grow-1 min-w-fit justify-center'>
-          <div className='mx-5 my-10 px-20'>
+        <div className='flex w-screen min-w-fit justify-center'>
+          <div className='sm:mx-5 sm:my-10 sm:px-20'>
             <span className='font-sans text-primary'>Sort by: </span>
             <div className='dropdown dropdown-hover'>
               <div
