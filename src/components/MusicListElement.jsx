@@ -23,7 +23,7 @@ const MusicListElement = ({
       <div className='flex-1 h-fit flex justify-center'>
         <figure>
           <img
-            className='w-46 h-46 sm:w-56 sm:h-auto object-cover rounded-lg'
+            className='w-40 h-40 sm:w-56 sm:h-auto object-cover rounded-lg'
             src={albumArt}
             alt={album}
           />
