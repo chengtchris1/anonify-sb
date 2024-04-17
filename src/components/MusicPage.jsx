@@ -277,8 +277,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   };
   return playlistInfo ? (
     <>
-      <div className='flex flex-wrap justify-evenly bg-base-100'>
-        <div className='flex flex-col items-center'>
+      <div className='flex flex-col min-w-fit md:flex-row justify-evenly bg-base-100'>
+        <div className='flex flex-col items-center md:w-1/3'>
           <h1 className='text-6xl font-bold text-center m-5 px-30'>
             <a href='/'>
               <span className='text-primary'>Anonify</span>
@@ -286,7 +286,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           </h1>
           <ThemeSelector theme={theme} setTheme={handleThemeChange} />
         </div>
-        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px]'>
+        <div className='bg-primary-content overflow-auto flex-grow h-[96vh] px-0 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/3 min-w-80'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
               <h2 className='text-primary text-3xl font-bold text-center'>
@@ -341,8 +341,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
             </div>
           ) : null}
         </div>
-        <div className='flex w-screen min-w-fit justify-center'>
-          <div className='sm:mx-5 sm:my-10 sm:px-20'>
+        <div className='overflow-auto flex-grow px-5 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/3'>
+          <div className='sm:mx-0 sm:my-10 sm:px-8'>
             <span className='font-sans text-primary'>Sort by: </span>
             <div className='dropdown dropdown-hover'>
               <div
@@ -392,7 +392,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
             <span className='text-primary'>Enter Track ID or Spotify URL:</span>
             <br />
             <input
-              className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1'
+              className='input input-bordered input-primary p-2 text-center mx-auto w-full my-1'
               name='songURI'
               value={addSongField}
               onChange={(e) => {
@@ -448,7 +448,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 </div>*/}
             <div className='flex justify-end'>
               <button
-                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full h-20 lg:h-12'
                 onClick={() => {
                   window.open(
                     `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
