@@ -16,6 +16,14 @@ const MusicList = ({
     <AnimatePresence>
       <ul>
         {songs
+          .filter((song) => {
+            if (seen.has(song.anonify_index)) {
+              return false;
+            } else {
+              seen.add(song.anonify_index);
+              return true;
+            }
+          })
           .sort((a, b) => {
             if (currentSort === "votes") {
               if (b.votes === a.votes) {
@@ -28,14 +36,6 @@ const MusicList = ({
               return a.name.localeCompare(b.name);
             } else if (currentSort === "orderadded") {
               return a.anonify_index - b.anonify_index;
-            }
-          })
-          .filter((song) => {
-            if (seen.has(song.anonify_index)) {
-              return false;
-            } else {
-              seen.add(song.anonify_index);
-              return true;
             }
           })
           .map((song, index) => (

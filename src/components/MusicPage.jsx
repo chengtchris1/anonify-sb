@@ -267,6 +267,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
       `${playlistInfo.path}/${trackId}/${anonify_index}`
     );
     //Update the playlist and remove the song from the list.
+    await qc.invalidateQueries(["path"]);
+    await qc.prefetchQuery(["path"]);
     let nextPlaylist = playlists.data.tracks.filter((song) => {
       return song.anonify_index !== anonify_index;
     });
@@ -293,9 +295,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     mutationFn: ({ id, anonify_index }) => {
       deleteSong(id, anonify_index);
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log("Delete song res", data);
-
       let nextSongs = cookies.songsAddedByUser || [];
       nextSongs = nextSongs.filter((song) => song !== data);
       setCookie("songsAddedByUser", nextSongs, { path: "/" });

@@ -53,6 +53,7 @@ const MusicListElement = ({
           )}
           <div className='flex flex-row items-center m-0'>
             <button
+              disabled={loading}
               onClick={() => {
                 setLoading(true);
                 Axios.patch(`/${anonify_index}/downvote`).then(() => {
@@ -65,7 +66,9 @@ const MusicListElement = ({
             </button>
             <span className='text-lg mx-2'>{votes}</span>
             <button
+              disabled={loading}
               onClick={() => {
+                setLoading(true);
                 Axios.patch(`/${anonify_index}/upvote`).then(() => {
                   setLoading(false);
                 });
