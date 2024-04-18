@@ -2,8 +2,16 @@ import React from "react";
 import { useState } from "react";
 import axios from "axios";
 import ThemeSelector from "./ThemeSelector";
+import { FaCopy, FaCheckCircle } from "react-icons/fa";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function LandingPage({ theme, handleThemeChange }) {
   //const [songLimit, setSongLimit] = useState('');
+  const [generatingURL, setGeneratingURL] = useState(false);
+  const [copyClicked, setCopyClicked] = useState(false);
+  const [copyCompleted, setCopyCompleted] = useState(false);
   const [formInfo, setFormInfo] = useState({
     playlistName: "",
     songLimit: "0",
@@ -28,13 +36,15 @@ function LandingPage({ theme, handleThemeChange }) {
       })
       .then((response) => {
         setGeneratedURL(result);
-        navigator.clipboard.writeText(result);
-        console.log(response);
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setGeneratingURL(false);
       });
   };
+  const contextClass = {};
 
   return (
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
@@ -48,6 +58,7 @@ function LandingPage({ theme, handleThemeChange }) {
           </h1>
 
           <span className='text-primary'>Enter playlist name:</span>
+
           <input
             type='text'
             name='playlistName'
@@ -69,22 +80,44 @@ function LandingPage({ theme, handleThemeChange }) {
             placeholder='Enter song limit, 0 = None'
             />*/}
           <button
+            disabled={generatingURL}
             onClick={() => {
+              setGeneratingURL(true);
               generateURL();
             }}
-            className='mt-4 btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
+            className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
           >
-            Generate URL
+            {generatingURL && <span class='loading loading-spinner'></span>}
+            <span>Generate URL</span>
           </button>
           <br />
-          <input
-            value={generatedURL}
-            className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1'
-            placeholder='URL here'
-          />
-          {generatedURL !== "" && (
-            <h1 className='copiedText text-center'>Copied to clipboard!</h1>
-          )}
+          <br />
+          <div className='join radius-button '>
+            <input
+              value={generatedURL}
+              className='join-item input input-bordered input-primary flex-grow-3 p-2 text-center w-full mx-auto my-1'
+              placeholder='URL here'
+            />
+            <button
+              onClick={() => {
+                copyClicked && setCopyClicked(true);
+                navigator.clipboard.writeText(generatedURL);
+                setCopyCompleted(true);
+                setTimeout(() => setCopyCompleted(false), 2000); // 3000 milliseconds = 3 seconds
+              }}
+              className='join-item btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out rounded-btn'
+            >
+              <label className='swap swap-rotate'>
+                <input type='checkbox' />
+                <div className={copyCompleted ? "swap-on" : "swap-off"}>
+                  <FaCopy />
+                </div>
+                <div className={copyCompleted ? "swap-off" : "swap-on"}>
+                  <FaCheckCircle />
+                </div>
+              </label>
+            </button>
+          </div>
         </div>
       </div>
     </div>
