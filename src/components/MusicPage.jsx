@@ -4,18 +4,21 @@ import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import MusicList from "./MusicList";
 import { useCookies } from "react-cookie";
 import { createClient } from "@supabase/supabase-js";
+import ThemeSelector from "./ThemeSelector";
 let token;
 const supabase = createClient(
   "https://mbrefcgxduvrtayfrchk.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1icmVmY2d4ZHV2cnRheWZyY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMwMzQ2MDYsImV4cCI6MjAyODYxMDYwNn0.cK4-JJZQ-vNXg3ahWJwPzqu4c_aGCWpAn1ZRESu4R2I"
 );
 
-function MusicPage({ playlistInfo }) {
+function MusicPage({ playlistInfo, theme, handleThemeChange }) {
+  //const [theme, setTheme] = React.useState("synthwave");
   const [addSongField, setAddSongField] = useState();
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
   const [isAdding, setIsAdding] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
+
   const qc = useQueryClient();
   async function handleDBChange(payload) {
     console.log("DB change", payload);
@@ -42,6 +45,13 @@ function MusicPage({ playlistInfo }) {
     // else, add the song to the playlist.
 
     //we no longer need to check if the song is already in the playlist because we are now filtering out duplicates in MusicList.jsx
+
+    //Need to check if ID from playlistInfo.id is the same as the path in the payload.
+    //If it is, then we can add the song to the playlist.
+    //If it is not, then we should not add the song to the playlist.
+    if (playlistInfo.id !== payload.new.playlist_id) {
+      return;
+    }
     setIsAdding(true);
     console.log("payload from insert()", payload);
     try {
@@ -75,42 +85,66 @@ function MusicPage({ playlistInfo }) {
     }
   }
 
-  const activeUsers = supabase.channel(window.location.pathname);
-  activeUsers
-    .on("presence", { event: "sync" }, () => {
-      const newState = activeUsers.presenceState();
-      console.log("sync", newState);
-    })
-    .on("presence", { event: "join" }, ({ key, newPresences }) => {
-      console.log("join", key, newPresences);
-    })
-    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-      console.log("leave", key, leftPresences);
-    })
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "tracks" },
-      (p) => {
-        qc.invalidateQueries({ queryKey: ["play"] });
-        qc.invalidateQueries({ queryKey: ["path"] });
-        qc.prefetchQuery({ queryKey: ["path"] })
-          .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
-          .then(() => insert(p));
-      }
-    )
-    .on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "tracks" },
-      handleRatingChange
-    )
-    .on(
-      "postgres_changes",
-      { event: "DELETE", schema: "public", table: "tracks" },
-      (p) => {
-        handleResponsiveDelete(p);
-      }
-    )
-    .subscribe();
+  useEffect(() => {
+    const activeUsers = supabase.channel(window.location.pathname);
+    const userStatus = {
+      user: "user-1",
+      online_at: new Date().toISOString(),
+    };
+    activeUsers
+      .on("presence", { event: "sync" }, () => {
+        const newState = activeUsers.presenceState();
+        console.log("sync", newState);
+        console.log("active users", Object.keys(newState).length);
+        setActiveUsers(Object.keys(newState).length);
+      })
+      .on("presence", { event: "join" }, ({ key, newPresences }) => {
+        console.log("join", key, newPresences);
+        setActiveUsers(newPresences.length);
+      })
+      .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+        console.log("leave", key, leftPresences);
+        setActiveUsers(leftPresences.length);
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tracks",
+        },
+        (p) => {
+          qc.invalidateQueries({ queryKey: ["play"] });
+          qc.invalidateQueries({ queryKey: ["path"] });
+          qc.prefetchQuery({ queryKey: ["path"] })
+            .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
+            .then(() => insert(p));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "tracks" },
+        handleRatingChange
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "tracks" },
+        (p) => {
+          handleResponsiveDelete(p);
+        }
+      )
+      .subscribe(async (status) => {
+        console.log("status", status);
+        if (status !== "SUBSCRIBED") {
+          return;
+        }
+        const presenceTrackStatus = await activeUsers.track(userStatus);
+        console.log(presenceTrackStatus);
+      });
+    return () => {
+      activeUsers.unsubscribe();
+    };
+  }, []);
 
   const getToken = async () => {
     let token = await axios.get("/auth");
@@ -264,14 +298,26 @@ function MusicPage({ playlistInfo }) {
   };
   return playlistInfo ? (
     <>
-      <div className='flex flex-wrap justify-around'>
-        <h1 className='text-6xl font-bold text-center m-5'>
-          <a href='/'>Anonify</a>
-        </h1>
-        <div className='bg-black overflow-auto flex-grow h-screen max-w-[85vh]'>
+      <div className='flex flex-col min-w-[100%] md:flex-row justify-between bg-base-100 md:w-1/4'>
+        <div className='flex flex-col items-center m-5 md:max-w-52 md:w-1/3'>
+          <h1 className='text-6xl font-bold text-center m-5 px-30'>
+            <a href='/'>
+              <span className='text-primary'>Anonify</span>
+            </a>
+          </h1>
+          <ThemeSelector theme={theme} setTheme={handleThemeChange} />
+          <br />
+          <h2>
+            <span className='text-primary'>
+              {activeUsers} {activeUsers === 1 ? "user" : "users"} viewing this
+              page
+            </span>
+          </h2>
+        </div>
+        <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-box md:min-w-[720px] md:w-1/2 overflow-y-scroll'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
             <>
-              <h2 className='text-white text-3xl font-bold text-center'>
+              <h2 className='text-primary text-3xl font-bold text-center'>
                 {playlistInfo.playlistName}
               </h2>
               <MusicList
@@ -284,79 +330,138 @@ function MusicPage({ playlistInfo }) {
           )}
           {/*Source for loading icon: https://tailwindflex.com/tag/loading*/}
           {playlists.data?.tracks.length === 0 && (
-            <div className='w-full h-screen flex flex-grow justify-center items-center flex-col'>
+            <div className='w-full flex flex-grow justify-center h-fill items-center flex-col'>
               <div>
-                <h2 className='text-white text-2xl font-bold text-center p-3 m-5'>
+                <h2 className='text-primary text-2xl font-bold text-center p-3 m-5 '>
                   Waiting for you to add music to:
                   <br />
-                  {playlistInfo.name}
+                  {playlistInfo?.name}
                 </h2>
               </div>
               <br />
-              <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
-                <span className='sr-only'>Loading...</span>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+              <div className='h-full flex flex-col justify-center items-center'>
+                <div className='flex items-center h-[70vh]'>
+                  <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
+                    <span className='sr-only'>Loading...</span>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
           {playlists.isError ? (
-            <div className='w-full h-screen flex flex-grow justify-center items-center'>
+            <div className='w-full h-[80vh] flex flex-grow justify-center items-center'>
               Playlist error...
             </div>
           ) : null}
           {playlists.isLoading ? (
-            <div className='flex space-x-2 justify-center items-center bg-white h-screen dark:invert'>
-              <span className='sr-only'>Loading...</span>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-              <div className='h-8 w-8 bg-black rounded-full animate-bounce'></div>
+            <div className='h-full flex flex-col justify-center items-center'>
+              <div className='flex items-center h-[70vh]'>
+                <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
+                  <span className='sr-only'>Loading...</span>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
-        <div className='flex grow-1 min-w-fit justify-center'>
-          <div className='mx-5 my-10'>
-            <label className='font-bold' htmlFor='songURI'>
-              Enter Track ID or Spotify URL:
-              <br />
-              <input
-                className='border border-gray-400 p-2 rounded-lg text-center mx-auto w-96 my-1'
-                name='songURI'
-                value={addSongField}
-                onChange={(e) => {
-                  console.log(e.target.value);
-                  setAddSongField(e.target.value);
-                }}
-              />
-              {addSongToPlaylist.isLoading && (
-                <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  Loading...
-                </div>
-              )}
-              <br />
-              <div className='flex justify-end'>
-                <button
-                  disabled={isAdding}
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full disabled:bg-gray-500 disabled:text-black disabled:border-black'
-                  onClick={() => {
-                    const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
-                    const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
-                    if (spotifyUrlMatch) {
-                      setAddSongField(spotifyUrlMatch[1]);
-                    } else {
-                      console.log("Not a valid Spotify URL");
-                    }
-                    addSongToPlaylist.mutate();
-                    //setAddSongField("");
-                  }}
-                >
-                  Add to list
-                </button>
+        <div className='px-10 pt-0 pb-5 m-5 rounded-2xl max-w-[720px] md:w-1/3 min-w-100'>
+          <div className='sm:mx-0 sm:my-10 sm:px-8'>
+            <span className='font-sans text-primary'>Sort by: </span>
+            <div className='dropdown dropdown-hover'>
+              <div
+                tabIndex={0}
+                role='button'
+                className='btn btn-xs btn-primary m-0'
+              >
+                <span className='underline'>
+                  {currentSort === "votes" && "Votes"}
+                  {currentSort === "orderadded" && "Order Added"}
+                </span>
               </div>
-              <div className='flex justify-end'>
-                <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+              <ul
+                tabIndex={0}
+                className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
+                onMouseLeave={() => {}}
+              >
+                <li>
+                  <a
+                    className={`${
+                      currentSort === "votes" ? "bg-primary" : "bg-transparent"
+                    } hover:text-white`}
+                    onClick={() => {
+                      setCurrentSort("votes");
+                    }}
+                  >
+                    Votes
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={`${
+                      currentSort === "orderadded"
+                        ? "bg-primary"
+                        : "bg-transparent"
+                    } hover:text-white`}
+                    onClick={() => {
+                      setCurrentSort("orderadded");
+                    }}
+                  >
+                    Order added
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <br />
+            <span className='text-primary'>Enter Track ID or Spotify URL:</span>
+            <br />
+            <input
+              className='input input-bordered input-primary p-2 text-center mx-auto w-full my-1'
+              name='songURI'
+              value={addSongField}
+              onChange={(e) => {
+                console.log(e.target.value);
+                setAddSongField(e.target.value);
+              }}
+            />
+            {addSongToPlaylist.isLoading && (
+              <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                Loading...
+              </div>
+            )}
+            <br />
+            <div className='flex justify-end'>
+              <button
+                disabled={isAdding}
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
+                onClick={() => {
+                  const spotifyUrlRegex = /\/track\/([a-zA-Z0-9]{22})/;
+                  const spotifyUrlMatch = addSongField.match(spotifyUrlRegex);
+                  if (spotifyUrlMatch) {
+                    setAddSongField(spotifyUrlMatch[1]);
+                  } else {
+                    console.log("Not a valid Spotify URL");
+                  }
+                  addSongToPlaylist.mutate();
+                }}
+              >
+                {isAdding ? (
+                  <>
+                    <span class='loading loading-spinner'></span>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Add to playlist</span>
+                )}
+              </button>
+            </div>
+            {/*<div className='flex justify-end'>
+              <button
+                  className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
                   onClick={() => {
                     if (currentSort === "votes") {
                       setCurrentSort("orderadded");
@@ -368,45 +473,47 @@ function MusicPage({ playlistInfo }) {
                   {currentSort === "votes" && "Change sort to order added"}
                   {currentSort === "orderadded" && "Change sort to votes"}
                 </button>
-              </div>
+                </div>*/}
+            <div className='flex justify-end'>
+              <button
+                className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full h-auto text-wrap'
+                onClick={() => {
+                  window.open(
+                    `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
+                  );
+                }}
+              >
+                Auth Spotify + Create Playlist
+              </button>
+            </div>
+            {/*
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-full'
+                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
                   onClick={() => {
-                    window.open(
-                      `https://accounts.spotify.com/authorize?client_id=df9fb6c9d7794a2f8da08629c16768cd&response_type=code&redirect_uri=${window.location.origin}/callback&scope=playlist-modify-public&state=${window.location.href}`
-                    );
+                    console.log(playlistInfo);
+                    console.log(playlists.data);
+                    console.log(cookies.songsAddedByUser);
+                    theme === "synthwave"
+                      ? setTheme("light")
+                      : setTheme("synthwave");
                   }}
                 >
-                  Auth Spotify + Create Playlist
+                  Debug
                 </button>
+              </div>*/}
+            {addSongToPlaylist.isError && (
+              <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+                <h2>Error...</h2>
+                {<h4>{addSongToPlaylist.error.message}</h4>}
               </div>
+            )}
+            {/*addSongToPlaylist.isSuccess &&
               {
-                <div className='flex justify-end'>
-                  <button
-                    className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
-                    onClick={() => {
-                      console.log(playlistInfo);
-                      console.log(playlists.data);
-                      console.log(cookies.songsAddedByUser);
-                    }}
-                  >
-                    Debug
-                  </button>
-                </div>
-              }
-              {addSongToPlaylist.isError && (
-                <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  <h2>Error...</h2>
-                  {<h4>{addSongToPlaylist.error.message}</h4>}
-                </div>
-              )}
-              {addSongToPlaylist.isSuccess && (
                 <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
-                  Added song!
-                </div>
-              )}
-            </label>
+                Added song!
+            </div>
+              }*/}
           </div>
           {/*
             <button

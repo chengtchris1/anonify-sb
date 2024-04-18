@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
-
-function LandingPage() {
+import ThemeSelector from "./ThemeSelector";
+function LandingPage({ theme, handleThemeChange }) {
   //const [songLimit, setSongLimit] = useState('');
   const [formInfo, setFormInfo] = useState({
     playlistName: "",
@@ -37,43 +37,49 @@ function LandingPage() {
   };
 
   return (
-    <div className='bg-landingbg bg-cover hue-rotate-270'>
-      <div className='flex items-center justify-center min-h-screen backdrop-blur-md'>
-        <div className='px-10 py-8 flex flex-col justify-center bg-white  bg-opacity-50 rounded-xl border-solid border-white border-2'>
-          <h1 className='text-black text-6xl font-bold text-center pb-4'>
+    <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
+      <div className='flex items-center'>
+        <div className='px-10 py-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
+          <div className='flex justify-end'>
+            <ThemeSelector theme={theme} setTheme={handleThemeChange} />
+          </div>
+          <h1 className='text-primary text-6xl font-bold text-center pb-4'>
             Anonify
           </h1>
-          <span className='text-black'>Enter playlist name:</span>
+
+          <span className='text-primary'>Enter playlist name:</span>
           <input
             type='text'
             name='playlistName'
             value={formInfo.playlistName}
             onChange={(e) => handleFormChange(e)}
-            className='border border-gray-400 p-2 rounded-lg text-center'
+            className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
             placeholder='Enter playlist name'
           />
-          <span className='text-black'>Song limit (0 = None):</span>
-          <input
+
+          {/*
+            <span className='text-primary'>
+              Song limit (0 = None):
+            </span> <input
             type='number'
             name='songLimit'
             value={formInfo.songLimit || 0}
             onChange={(e) => handleFormChange(e)}
-            className='border border-gray-400 p-2 rounded-lg text-center'
+            className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
             placeholder='Enter song limit, 0 = None'
-          />
+            />*/}
           <button
             onClick={() => {
               generateURL();
             }}
-            className='mt-4 bg-black text-white p-2 rounded-lg'
+            className='mt-4 btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
           >
             Generate URL
           </button>
           <br />
           <input
-            disabled={true}
             value={generatedURL}
-            className='border border-gray-400 p-2 bg-white bg-opacity-60 rounded-lg text-center'
+            className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1 font-sans'
             placeholder='URL here'
           />
           {generatedURL !== "" && (

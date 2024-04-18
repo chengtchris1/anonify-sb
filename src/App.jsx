@@ -7,7 +7,65 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@supabase/supabase-js";
 
 function App() {
+  const themesList = [
+    "dark",
+    "light",
+    "cupcake",
+    "bumblebee",
+    "emerald",
+    "corporate",
+    "synthwave",
+    "retro",
+    "cyberpunk",
+    "valentine",
+    "halloween",
+    "garden",
+    "forest",
+    "aqua",
+    "lofi",
+    "pastel",
+    "fantasy",
+    "wireframe",
+    "black",
+    "luxury",
+    "dracula",
+    "cmyk",
+    "autumn",
+    "business",
+    "acid",
+    "lemonade",
+    "night",
+    "coffee",
+    "winter",
+    "dim",
+    "nord",
+    "sunset",
+  ];
   const [playlistInfo, setPlaylistInfo] = useState(window.location.pathname);
+  const [theme, setTheme] = useState(() => {
+    const localTheme = localStorage.getItem("theme");
+    return localTheme
+      ? JSON.parse(localTheme)
+      : themesList.reduce((acc, item) => {
+          acc[item] = false;
+          return acc;
+        }, {});
+  });
+  useEffect(() => {
+    let currentTheme = Object.keys(theme).find((key) => theme[key]);
+    document.querySelector("html").setAttribute("data-theme", currentTheme);
+    localStorage.setItem("theme", JSON.stringify(theme));
+  }, [theme]);
+
+  const handleThemeChange = (themeName) => {
+    let nextTheme = Object.keys(theme).reduce((acc, key) => {
+      acc[key] = key === themeName;
+      return acc;
+    }, {});
+
+    setTheme(nextTheme);
+  };
+
   const path = useQuery({
     queryKey: ["path"],
     queryFn: () =>
@@ -16,14 +74,18 @@ function App() {
   });
 
   return window.location.pathname === "/" ? (
-    <LandingPage />
+    <LandingPage theme={theme} handleThemeChange={handleThemeChange} />
   ) : (
     <>
       {path.isLoading ? <div>Loading...</div> : null}
       {path.error ? <div>Error: {path.error}</div> : null}
       {path.isSuccess ? (
         <>
-          <MusicPage playlistInfo={path.data.data} />
+          <MusicPage
+            playlistInfo={path.data.data}
+            theme={theme}
+            handleThemeChange={handleThemeChange}
+          />
         </>
       ) : null}
     </>
