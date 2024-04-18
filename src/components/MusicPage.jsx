@@ -84,11 +84,44 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
       setIsAdding(false);
     }
   }
-
+  const listenToDb = supabase.channel(window.location.pathname + "_listenToDb");
+  listenToDb
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "tracks",
+      },
+      (p) => {
+        qc.invalidateQueries({ queryKey: ["play"] });
+        qc.invalidateQueries({ queryKey: ["path"] });
+        qc.prefetchQuery({ queryKey: ["path"] })
+          .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
+          .then(() => insert(p));
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "tracks" },
+      handleRatingChange
+    )
+    .on(
+      "postgres_changes",
+      { event: "DELETE", schema: "public", table: "tracks" },
+      (p) => {
+        handleResponsiveDelete(p);
+      }
+    )
+    .subscribe();
+  const userStatus = {
+    online_at: new Date().toISOString(),
+  };
   useEffect(() => {
-    const activeUsers = supabase.channel(window.location.pathname);
+    const activeUsers = supabase.channel(
+      window.location.pathname + "_activeUsers"
+    );
     const userStatus = {
-      user: "user-1",
       online_at: new Date().toISOString(),
     };
     activeUsers
@@ -106,33 +139,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
         console.log("leave", key, leftPresences);
         setActiveUsers(leftPresences.length);
       })
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "tracks",
-        },
-        (p) => {
-          qc.invalidateQueries({ queryKey: ["play"] });
-          qc.invalidateQueries({ queryKey: ["path"] });
-          qc.prefetchQuery({ queryKey: ["path"] })
-            .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
-            .then(() => insert(p));
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "tracks" },
-        handleRatingChange
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "tracks" },
-        (p) => {
-          handleResponsiveDelete(p);
-        }
-      )
       .subscribe(async (status) => {
         console.log("status", status);
         if (status !== "SUBSCRIBED") {
@@ -194,6 +200,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     console.log(payload.new.id);
     console.log(payload.new.votes);
     console.log(playlists.data);
+    const test = playlists;
+    console.log("test", test);
     const newTracks = playlists.data.tracks.map((song) => {
       if (song.anonify_index === payload.new.id) {
         return { ...song, votes: payload.new.votes };
@@ -486,7 +494,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 Auth Spotify + Create Playlist
               </button>
             </div>
-            {/*
+            {
               <div className='flex justify-end'>
                 <button
                   className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
@@ -494,14 +502,12 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                     console.log(playlistInfo);
                     console.log(playlists.data);
                     console.log(cookies.songsAddedByUser);
-                    theme === "synthwave"
-                      ? setTheme("light")
-                      : setTheme("synthwave");
                   }}
                 >
                   Debug
                 </button>
-              </div>*/}
+              </div>
+            }
             {addSongToPlaylist.isError && (
               <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                 <h2>Error...</h2>
