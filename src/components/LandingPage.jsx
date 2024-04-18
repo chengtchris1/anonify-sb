@@ -96,20 +96,22 @@ function LandingPage({ theme, handleThemeChange }) {
               placeholder='URL here'
             />
             <button
+              enabled={!copyClicked}
               onClick={() => {
-                copyClicked && setCopyClicked(true);
                 navigator.clipboard.writeText(generatedURL);
-                setCopyCompleted(true);
-                setTimeout(() => setCopyCompleted(false), 2000); // 3000 milliseconds = 3 seconds
+                setCopyClicked(true);
+              }}
+              onMouseLeave={() => {
+                setCopyClicked(false);
               }}
               className='join-item btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out rounded-btn'
             >
               <label className='swap swap-rotate'>
                 <input type='checkbox' />
-                <div className={copyCompleted ? "swap-off" : "swap-on"}>
+                <div className={copyClicked ? "swap-off" : "swap-on"}>
                   <FaCheckCircle />
                 </div>
-                <div className={copyCompleted ? "swap-on" : "swap-off"}>
+                <div className={copyClicked ? "swap-on" : "swap-off"}>
                   <FaCopy />
                 </div>
               </label>
