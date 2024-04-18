@@ -1,7 +1,7 @@
 const ThemeSelector = ({ theme, setTheme }) => {
   const currentTheme = Object.keys(theme).find((key) => theme[key]);
   return (
-    <div className='dropdown dropdown-hover dropdown-end'>
+    <div className='dropdown dropdown-hover'>
       <div tabIndex={0} role='button' className='btn btn-xs btn-primary'>
         <span>
           Theme:{" "}
@@ -19,7 +19,7 @@ const ThemeSelector = ({ theme, setTheme }) => {
             <a
               className={`text-primary ${
                 themeName === currentTheme
-                  ? "bg-primary-content"
+                  ? "bg-neutral-content text-neutral-content"
                   : "bg-transparent"
               }`}
               onClick={() => {
