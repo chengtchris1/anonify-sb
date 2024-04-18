@@ -309,8 +309,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           <br />
           <h2>
             <span className='text-primary'>
-              {activeUsers} {activeUsers === 1 ? "user" : "users"} viewing this
-              page
+              {activeUsers} {activeUsers === 1 ? "user is" : "users are"}{" "}
+              viewing this page
             </span>
           </h2>
         </div>
