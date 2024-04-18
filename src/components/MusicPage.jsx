@@ -393,14 +393,14 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
               </div>
               <ul
                 tabIndex={0}
-                className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content text-secondary rounded-box w-52'
+                className='dropdown-content z-[1] menu p-2 shadow bg-primary-content text-primary rounded-box w-52'
               >
                 <li>
                   <a
                     className={`${
                       currentSort === "votes"
-                        ? "bg-primary-content text-primary"
-                        : "bg-transparent"
+                        ? "bg-secondary-content text-secondary"
+                        : "bg-transparent text-primary"
                     }`}
                     onClick={() => {
                       setCurrentSort("votes");
@@ -413,8 +413,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                   <a
                     className={`${
                       currentSort === "orderadded"
-                        ? "bg-primary-content text-primary"
-                        : "bg-transparent"
+                        ? "bg-secondary-content text-secondary"
+                        : "bg-transparent text-primary"
                     }`}
                     onClick={() => {
                       setCurrentSort("orderadded");
@@ -438,7 +438,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
               }}
             />
             {addSongToPlaylist.isLoading && (
-              <div className='justify-center flex bg-emerald-700 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
+              <div className='justify-center flex bg-emerald-700 text-primary text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                 Loading...
               </div>
             )}

@@ -12,15 +12,15 @@ const ThemeSelector = ({ theme, setTheme }) => {
       </div>
       <ul
         tabIndex={0}
-        className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
+        className='dropdown-content z-[1] menu p-2 shadow bg-primary-content text-primary rounded-box w-52'
       >
         {Object.keys(theme).map((themeName) => (
           <li>
             <a
               className={`${
                 themeName === currentTheme
-                  ? "bg-primary-content text-primary"
-                  : "bg-transparent text-secondary"
+                  ? "bg-secondary-content text-secondary"
+                  : "bg-transparent text-primary"
               }`}
               onClick={() => {
                 setTheme(themeName);
