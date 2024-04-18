@@ -17,7 +17,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
   const [isAdding, setIsAdding] = useState(false);
-  const [activeUsers, setActiveUsers] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(1);
 
   const qc = useQueryClient();
   async function handleDBChange(payload) {
@@ -349,11 +349,11 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
               <br />
               <div className='h-full flex flex-col justify-center items-center'>
                 <div className='flex items-center h-[70vh]'>
-                  <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
+                  <div className='flex space-x-2 justify-center items-center bg-transparent h-fill'>
                     <span className='sr-only'>Loading...</span>
-                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                    <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                    <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                    <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                    <div className='h-8 w-8 bg-primary rounded-full animate-bounce'></div>
                   </div>
                 </div>
               </div>
@@ -369,9 +369,9 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
               <div className='flex items-center h-[70vh]'>
                 <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
                   <span className='sr-only'>Loading...</span>
-                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                  <div className='h-8 w-8 bg-base-200 rounded-full animate-bounce'></div>
+                  <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                  <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                  <div className='h-8 w-8 bg-primary rounded-full animate-bounce'></div>
                 </div>
               </div>
             </div>
@@ -393,14 +393,15 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
               </div>
               <ul
                 tabIndex={0}
-                className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content rounded-box w-52'
-                onMouseLeave={() => {}}
+                className='dropdown-content z-[1] menu p-2 shadow bg-secondary-content text-secondary rounded-box w-52'
               >
                 <li>
                   <a
                     className={`${
-                      currentSort === "votes" ? "bg-primary" : "bg-transparent"
-                    } hover:text-white`}
+                      currentSort === "votes"
+                        ? "bg-primary-content text-primary"
+                        : "bg-transparent"
+                    }`}
                     onClick={() => {
                       setCurrentSort("votes");
                     }}
@@ -412,9 +413,9 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                   <a
                     className={`${
                       currentSort === "orderadded"
-                        ? "bg-primary"
+                        ? "bg-primary-content text-primary"
                         : "bg-transparent"
-                    } hover:text-white`}
+                    }`}
                     onClick={() => {
                       setCurrentSort("orderadded");
                     }}
@@ -497,7 +498,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
             {
               <div className='flex justify-end'>
                 <button
-                  className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
+                  className='btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out w-full'
                   onClick={() => {
                     console.log(playlistInfo);
                     console.log(playlists.data);

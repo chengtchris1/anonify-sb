@@ -17,10 +17,10 @@ const ThemeSelector = ({ theme, setTheme }) => {
         {Object.keys(theme).map((themeName) => (
           <li>
             <a
-              className={`text-primary ${
+              className={`${
                 themeName === currentTheme
-                  ? "bg-neutral-content text-neutral-content"
-                  : "bg-transparent"
+                  ? "bg-primary-content text-primary"
+                  : "bg-transparent text-secondary"
               }`}
               onClick={() => {
                 setTheme(themeName);
