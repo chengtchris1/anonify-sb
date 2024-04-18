@@ -17,7 +17,8 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   const [cookies, setCookie, removeCookie] = useCookies(["songsAddedByUser"]);
   const [currentSort, setCurrentSort] = useState("votes");
   const [isAdding, setIsAdding] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
+
   const qc = useQueryClient();
   async function handleDBChange(payload) {
     console.log("DB change", payload);
@@ -84,46 +85,66 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     }
   }
 
-  const activeUsers = supabase.channel(window.location.pathname);
-  activeUsers
-    .on("presence", { event: "sync" }, () => {
-      const newState = activeUsers.presenceState();
-      console.log("sync", newState);
-    })
-    .on("presence", { event: "join" }, ({ key, newPresences }) => {
-      console.log("join", key, newPresences);
-    })
-    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-      console.log("leave", key, leftPresences);
-    })
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "tracks",
-      },
-      (p) => {
-        qc.invalidateQueries({ queryKey: ["play"] });
-        qc.invalidateQueries({ queryKey: ["path"] });
-        qc.prefetchQuery({ queryKey: ["path"] })
-          .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
-          .then(() => insert(p));
-      }
-    )
-    .on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "tracks" },
-      handleRatingChange
-    )
-    .on(
-      "postgres_changes",
-      { event: "DELETE", schema: "public", table: "tracks" },
-      (p) => {
-        handleResponsiveDelete(p);
-      }
-    )
-    .subscribe();
+  useEffect(() => {
+    const activeUsers = supabase.channel(window.location.pathname);
+    const userStatus = {
+      user: "user-1",
+      online_at: new Date().toISOString(),
+    };
+    activeUsers
+      .on("presence", { event: "sync" }, () => {
+        const newState = activeUsers.presenceState();
+        console.log("sync", newState);
+        console.log("active users", Object.keys(newState).length);
+        setActiveUsers(Object.keys(newState).length);
+      })
+      .on("presence", { event: "join" }, ({ key, newPresences }) => {
+        console.log("join", key, newPresences);
+        setActiveUsers(newPresences.length);
+      })
+      .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+        console.log("leave", key, leftPresences);
+        setActiveUsers(leftPresences.length);
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "tracks",
+        },
+        (p) => {
+          qc.invalidateQueries({ queryKey: ["play"] });
+          qc.invalidateQueries({ queryKey: ["path"] });
+          qc.prefetchQuery({ queryKey: ["path"] })
+            .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
+            .then(() => insert(p));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "tracks" },
+        handleRatingChange
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "tracks" },
+        (p) => {
+          handleResponsiveDelete(p);
+        }
+      )
+      .subscribe(async (status) => {
+        console.log("status", status);
+        if (status !== "SUBSCRIBED") {
+          return;
+        }
+        const presenceTrackStatus = await activeUsers.track(userStatus);
+        console.log(presenceTrackStatus);
+      });
+    return () => {
+      activeUsers.unsubscribe();
+    };
+  }, []);
 
   const getToken = async () => {
     let token = await axios.get("/auth");
@@ -285,6 +306,13 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
             </a>
           </h1>
           <ThemeSelector theme={theme} setTheme={handleThemeChange} />
+          <br />
+          <h2>
+            <span className='text-primary'>
+              {activeUsers} {activeUsers === 1 ? "user" : "users"} viewing this
+              page
+            </span>
+          </h2>
         </div>
         <div className='bg-primary-content flex-grow h-[96vh] px-10 pt-0 pb-5 m-5 rounded-box md:min-w-[720px] md:w-1/2 overflow-y-scroll'>
           {playlists.isSuccess && playlists.data?.tracks.length > 0 && (
