@@ -367,7 +367,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           {playlists.isLoading ? (
             <div className='h-full flex flex-col justify-center items-center'>
               <div className='flex items-center h-[70vh]'>
-                <div className='flex space-x-2 justify-center items-center bg-transparent h-fill dark:invert'>
+                <div className='flex space-x-2 justify-center items-center bg-transparent h-fill'>
                   <span className='sr-only'>Loading...</span>
                   <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                   <div className='h-8 w-8 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]'></div>

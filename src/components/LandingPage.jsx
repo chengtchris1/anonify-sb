@@ -79,7 +79,7 @@ function LandingPage({ theme, handleThemeChange }) {
           <br />
           <input
             value={generatedURL}
-            className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1 font-sans'
+            className='input input-bordered input-primary p-2 text-center mx-auto w-96 my-1'
             placeholder='URL here'
           />
           {generatedURL !== "" && (

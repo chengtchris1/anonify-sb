@@ -11,7 +11,6 @@ function App() {
     "dark",
     "light",
     "cupcake",
-    "bumblebee",
     "emerald",
     "corporate",
     "synthwave",
