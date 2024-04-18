@@ -486,7 +486,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 Auth Spotify + Create Playlist
               </button>
             </div>
-            {
+            {/*
               <div className='flex justify-end'>
                 <button
                   className='bg-black text-white rounded-lg py-2 px-3 my-1 border-black border-2 hover:bg-white hover:text-black transition duration-500 ease-in-out w-96'
@@ -501,8 +501,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 >
                   Debug
                 </button>
-              </div>
-            }
+              </div>*/}
             {addSongToPlaylist.isError && (
               <div className='justify-center flex bg-red-500 text-white text-bold rounded-lg p-3 w-full mx-auto text-center my-1'>
                 <h2>Error...</h2>

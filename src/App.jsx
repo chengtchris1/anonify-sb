@@ -8,8 +8,8 @@ import { createClient } from "@supabase/supabase-js";
 
 function App() {
   const themesList = [
-    "light",
     "dark",
+    "light",
     "cupcake",
     "bumblebee",
     "emerald",
