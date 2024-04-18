@@ -4,9 +4,6 @@ import axios from "axios";
 import ThemeSelector from "./ThemeSelector";
 import { FaCopy, FaCheckCircle } from "react-icons/fa";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 function LandingPage({ theme, handleThemeChange }) {
   //const [songLimit, setSongLimit] = useState('');
   const [generatingURL, setGeneratingURL] = useState(false);
@@ -109,11 +106,11 @@ function LandingPage({ theme, handleThemeChange }) {
             >
               <label className='swap swap-rotate'>
                 <input type='checkbox' />
-                <div className={copyCompleted ? "swap-on" : "swap-off"}>
-                  <FaCopy />
-                </div>
                 <div className={copyCompleted ? "swap-off" : "swap-on"}>
                   <FaCheckCircle />
+                </div>
+                <div className={copyCompleted ? "swap-on" : "swap-off"}>
+                  <FaCopy />
                 </div>
               </label>
             </button>
