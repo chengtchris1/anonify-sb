@@ -46,16 +46,13 @@ function LandingPage({ theme, handleThemeChange }) {
   return (
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
       <div className='flex items-center'>
-        <div className='px-10 py-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
+        <div className='px-10 pt-6 pb-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
           <div className='flex'>
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
           <h1 className='text-primary text-6xl font-bold text-center pb-4'>
             Anonify
           </h1>
-
-          <span className='text-primary'>Enter playlist name:</span>
-
           <input
             type='text'
             name='playlistName'
@@ -87,8 +84,6 @@ function LandingPage({ theme, handleThemeChange }) {
             {generatingURL && <span class='loading loading-spinner'></span>}
             <span>Generate URL</span>
           </button>
-          <br />
-          <br />
           <div className='join radius-button '>
             <input
               value={generatedURL}
@@ -117,6 +112,7 @@ function LandingPage({ theme, handleThemeChange }) {
               </label>
             </button>
           </div>
+          <br />
         </div>
       </div>
     </div>
