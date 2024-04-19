@@ -58,7 +58,7 @@ function LandingPage({ theme, handleThemeChange }) {
             name='playlistName'
             value={formInfo.playlistName}
             onChange={(e) => handleFormChange(e)}
-            className='input input-bordered input-primary text-center w-full mb-1 px-8'
+            className='input input-bordered input-primary flex-grow-3 py-2 text-left w-full mx-auto my-1'
             placeholder='Enter playlist name'
           />
 
@@ -73,10 +73,11 @@ function LandingPage({ theme, handleThemeChange }) {
             className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
             placeholder='Enter song limit, 0 = None'
             />*/}
+
           <div className='join radius-button '>
             <input
               value={generatedURL}
-              className='join-item input input-bordered input-primary flex-grow-3 py-2 text-center w-full mx-auto my-2'
+              className='join-item input input-bordered input-primary flex-grow-3 py-2 text-left w-full mx-auto my-10'
               placeholder='URL will appear here...'
             />
             <button
@@ -88,29 +89,31 @@ function LandingPage({ theme, handleThemeChange }) {
               onMouseLeave={() => {
                 setCopyClicked(false);
               }}
-              className='join-item btn btn-primary text-xl py-2 px-3 duration-500 ease-in-out rounded-btn my-2'
+              className='join-item btn btn-primary text-xl py-2 px-3 duration-500 ease-in-out rounded-btn my-10'
             >
               <label className='swap swap-active swap-rotate'>
                 <div className={copyClicked ? "swap-off" : "swap-on"}>
-                  <FaCopy />
+                  <FaCopy className='mx-1' />
                 </div>
                 <div className={copyClicked ? "swap-on" : "swap-off"}>
-                  <FaCheckCircle />
+                  <FaCheckCircle className='mx-1' />
                 </div>
               </label>
             </button>
           </div>
-          <button
-            disabled={generatingURL}
-            onClick={() => {
-              setGeneratingURL(true);
-              generateURL();
-            }}
-            className='btn btn-primary text-xl py-2 px-3 mt-8 mb-1 duration-500 ease-in-out w-full'
-          >
-            {generatingURL && <span class='loading loading-spinner'></span>}
-            <span>Generate URL</span>
-          </button>
+          <div className='my-0'>
+            <button
+              disabled={generatingURL}
+              onClick={() => {
+                setGeneratingURL(true);
+                generateURL();
+              }}
+              className='btn btn-primary text-xl py-2 px-3 mt-0 mb-0 duration-500 ease-in-out w-full'
+            >
+              {generatingURL && <span class='loading loading-spinner'></span>}
+              <span>Generate URL</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
