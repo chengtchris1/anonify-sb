@@ -46,7 +46,7 @@ function LandingPage({ theme, handleThemeChange }) {
   return (
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
       <div className='flex items-center'>
-        <div className='px-12 pt-5 pb-12 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
+        <div className='px-12 pb-12 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
           <div className='flex'>
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
