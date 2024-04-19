@@ -82,21 +82,20 @@ function LandingPage({ theme, handleThemeChange }) {
             <button
               enabled={!copyClicked}
               onClick={() => {
-                navigator.clipboard.writeText(generatedURL);
                 setCopyClicked(true);
+                navigator.clipboard.writeText(generatedURL);
               }}
               onMouseLeave={() => {
                 setCopyClicked(false);
               }}
               className='join-item btn btn-primary text-xl py-2 px-3 duration-500 ease-in-out rounded-btn my-2'
             >
-              <label className='swap swap-rotate'>
-                <input type='checkbox' />
+              <label className='swap swap-active swap-rotate'>
                 <div className={copyClicked ? "swap-off" : "swap-on"}>
-                  <FaCheckCircle />
+                  <FaCopy />
                 </div>
                 <div className={copyClicked ? "swap-on" : "swap-off"}>
-                  <FaCopy />
+                  <FaCheckCircle />
                 </div>
               </label>
             </button>
