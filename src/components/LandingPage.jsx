@@ -47,7 +47,7 @@ function LandingPage({ theme, handleThemeChange }) {
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
       <div className='flex items-center'>
         <div className='px-10 pt-6 pb-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
-          <div className='flex mb-1 justify-center'>
+          <div className='flex mb-1'>
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
           <h1 className='text-primary text-6xl font-bold text-center mb-2'>
@@ -79,7 +79,7 @@ function LandingPage({ theme, handleThemeChange }) {
               setGeneratingURL(true);
               generateURL();
             }}
-            className='btn btn-primary text-xl py-2 px-3 mt-1 mb-6 duration-500 ease-in-out w-full'
+            className='btn btn-primary text-xl py-2 px-3 mt-1 mb-1 duration-500 ease-in-out w-full'
           >
             {generatingURL && <span class='loading loading-spinner'></span>}
             <span>Generate URL</span>
@@ -88,7 +88,7 @@ function LandingPage({ theme, handleThemeChange }) {
             <input
               value={generatedURL}
               className='join-item input input-bordered input-primary flex-grow-3 p-2 text-center w-full mx-auto my-1'
-              placeholder='URL here'
+              placeholder='URL will appear here...'
             />
             <button
               enabled={!copyClicked}
@@ -99,7 +99,7 @@ function LandingPage({ theme, handleThemeChange }) {
               onMouseLeave={() => {
                 setCopyClicked(false);
               }}
-              className='join-item btn btn-primary text-xl py-2 px-3 my-1 duration-500 ease-in-out rounded-btn'
+              className='join-item btn btn-primary text-xl py-2 px-3 my-2 duration-500 ease-in-out rounded-btn'
             >
               <label className='swap swap-rotate'>
                 <input type='checkbox' />
@@ -112,7 +112,6 @@ function LandingPage({ theme, handleThemeChange }) {
               </label>
             </button>
           </div>
-          <br />
         </div>
       </div>
     </div>
