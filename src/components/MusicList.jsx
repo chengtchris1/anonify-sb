@@ -5,13 +5,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 const MusicList = ({
   songs,
-  songsAddedByUser,
+  playlistInfo,
   handleDelete,
   currentSort,
   handleDataChange,
 }) => {
   // An array of song objects
   let seen = new Set();
+  let songsAddedByUser =
+    JSON.parse(
+      localStorage.getItem(`songsAddedByUser_${window.location.pathname}`),
+    ) || [];
   return (
     <AnimatePresence>
       <ul>
@@ -63,8 +67,7 @@ const MusicList = ({
                 previewUrl={song?.preview_url}
                 votes={song?.votes}
                 enableDelete={
-                  songsAddedByUser?.includes(String(song?.anonify_index)) ||
-                  false
+                  songsAddedByUser?.includes(song?.anonify_index) || false
                 }
                 //enableDelete={true}
                 handleDelete={handleDelete}
