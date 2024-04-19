@@ -47,7 +47,7 @@ function LandingPage({ theme, handleThemeChange }) {
     <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
       <div className='flex items-center'>
         <div className='px-10 pt-6 pb-8 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
-          <div className='flex mb-1'>
+          <div className='flex mb-1 justify-center'>
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
           <h1 className='text-primary text-6xl font-bold text-center mb-2'>
@@ -58,7 +58,7 @@ function LandingPage({ theme, handleThemeChange }) {
             name='playlistName'
             value={formInfo.playlistName}
             onChange={(e) => handleFormChange(e)}
-            className='input input-bordered input-neutral-content p-2 text-center mx-auto w-96 my-1'
+            className='input input-bordered input-neutral-content p-2 text-center mx-auto w-80 my-1'
             placeholder='Enter playlist name'
           />
 
