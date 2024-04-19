@@ -308,14 +308,15 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   return playlistInfo ? (
     <>
       <div className='flex flex-col min-w-[100%] md:flex-row justify-between bg-base-100 md:w-1/4'>
-        <div className='flex flex-col items-center m-5 md:max-w-52 md:w-1/3'>
-          <h1 className='text-6xl font-bold text-center m-5 px-30'>
+        <div className='flex flex-col items-center  m-5 md:max-w-52 md:w-1/3'>
+          <div className='flex justify-start w-full'>
+            <ThemeSelector theme={theme} setTheme={handleThemeChange} />
+          </div>
+          <h1 className='text-6xl font-bold text-center mb-0 sm:mb-10 px-30'>
             <a href='/'>
               <span className='text-primary'>Anonify</span>
             </a>
           </h1>
-          <ThemeSelector theme={theme} setTheme={handleThemeChange} />
-          <br />
           <h2>
             <span className='text-primary'>
               {activeUsers} {activeUsers === 1 ? "user is" : "users are"}{" "}
