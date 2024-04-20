@@ -44,22 +44,22 @@ function LandingPage({ theme, handleThemeChange }) {
   const contextClass = {};
 
   return (
-    <div className='bg-neutral bg-cover hue-rotate-270 h-[96vh] flex items-center justify-center overflow-x-clip'>
-      <div className='flex items-center'>
-        <div className='px-12 pb-12 flex flex-col justify-center bg-base-200  bg-opacity-100 rounded-box border-solid border-neutral-content'>
-          <div className='flex'>
+    <div className="hue-rotate-270 flex h-[100vh] items-center justify-center overflow-x-clip bg-neutral bg-cover">
+      <div className="flex items-center">
+        <div className="flex flex-col justify-center rounded-box border-solid border-neutral-content  bg-base-200 bg-opacity-100 px-12 pb-12">
+          <div className="flex">
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
-          <h1 className='text-primary text-[88px] font-bold text-center mt-0 mb-0'>
+          <h1 className="mb-0 mt-0 text-center text-[88px] font-bold text-primary">
             Anonify
           </h1>
           <input
-            type='text'
-            name='playlistName'
+            type="text"
+            name="playlistName"
             value={formInfo.playlistName}
             onChange={(e) => handleFormChange(e)}
-            className='input input-bordered input-primary flex-grow-3 py-2 text-left w-full mx-auto my-1'
-            placeholder='Enter playlist name'
+            className="flex-grow-3 input input-bordered input-primary mx-auto my-1 w-full py-2 text-left"
+            placeholder="Enter playlist name"
           />
 
           {/*
@@ -74,11 +74,11 @@ function LandingPage({ theme, handleThemeChange }) {
             placeholder='Enter song limit, 0 = None'
             />*/}
 
-          <div className='join radius-button '>
+          <div className="radius-button join ">
             <input
               value={generatedURL}
-              className='join-item input input-bordered input-primary flex-grow-3 py-2 text-left w-full mx-auto my-10'
-              placeholder='URL will appear here...'
+              className="flex-grow-3 input join-item input-bordered input-primary mx-auto my-10 w-full py-2 text-left"
+              placeholder="URL will appear here..."
             />
             <button
               enabled={!copyClicked}
@@ -89,28 +89,28 @@ function LandingPage({ theme, handleThemeChange }) {
               onMouseLeave={() => {
                 setCopyClicked(false);
               }}
-              className='join-item btn btn-primary text-xl py-2 px-3 duration-500 ease-in-out rounded-btn my-10'
+              className="btn btn-primary join-item my-10 rounded-btn px-3 py-2 text-xl duration-500 ease-in-out"
             >
-              <label className='swap swap-active swap-rotate'>
+              <label className="swap swap-active swap-rotate">
                 <div className={copyClicked ? "swap-off" : "swap-on"}>
-                  <FaCopy className='mx-1' />
+                  <FaCopy className="mx-1" />
                 </div>
                 <div className={copyClicked ? "swap-on" : "swap-off"}>
-                  <FaCheckCircle className='mx-1' />
+                  <FaCheckCircle className="mx-1" />
                 </div>
               </label>
             </button>
           </div>
-          <div className='my-0'>
+          <div className="my-0">
             <button
               disabled={generatingURL}
               onClick={() => {
                 setGeneratingURL(true);
                 generateURL();
               }}
-              className='btn btn-primary text-xl py-2 px-3 mt-0 mb-0 duration-500 ease-in-out w-full'
+              className="btn btn-primary mb-0 mt-0 w-full px-3 py-2 text-xl duration-500 ease-in-out"
             >
-              {generatingURL && <span class='loading loading-spinner'></span>}
+              {generatingURL && <span class="loading loading-spinner"></span>}
               <span>Generate URL</span>
             </button>
           </div>

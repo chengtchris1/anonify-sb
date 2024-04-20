@@ -74,7 +74,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
       return;
     }
     setIsAdding(true);
-    console.log("payload from insert()", payload);
     try {
       const response = await axios.get(
         `https://api.spotify.com/v1/tracks?market=US&ids=${payload.new.track_id}`,
@@ -85,15 +84,12 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
         },
       );
 
-      console.log("response", response.data);
       const newTrack = {
         ...response.data.tracks[0],
         anonify_index: payload.new.id,
         votes: 0,
       };
-      console.log("newTrackInInsert", newTrack);
       qc.setQueryData(["play"], (currentData) => {
-        console.log("currentData2", currentData);
         return {
           ...currentData,
           tracks: [...currentData.tracks, newTrack],
@@ -148,25 +144,19 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     activeUsers
       .on("presence", { event: "sync" }, () => {
         const newState = activeUsers.presenceState();
-        console.log("sync", newState);
-        console.log("active users", Object.keys(newState).length);
         setActiveUsers(Object.keys(newState).length);
       })
       .on("presence", { event: "join" }, ({ key, newPresences }) => {
-        console.log("join", key, newPresences);
         setActiveUsers(newPresences.length);
       })
       .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        console.log("leave", key, leftPresences);
         setActiveUsers(leftPresences.length);
       })
       .subscribe(async (status) => {
-        console.log("status", status);
         if (status !== "SUBSCRIBED") {
           return;
         }
         const presenceTrackStatus = await activeUsers.track(userStatus);
-        console.log(presenceTrackStatus);
       });
     return () => {
       activeUsers.unsubscribe();
@@ -179,7 +169,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   };
   const getStoredSongs = async () => {
     let songArray = playlistInfo.tracks.map((song) => song.track_id);
-    console.log(songArray);
     let songString = songArray.join(",");
     token = await axios.get("/auth");
     token = token.data;
@@ -201,7 +190,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
         votes: playlistInfo.tracks[index].votes,
       };
     });
-    console.log(songs.data);
     return songs.data;
   };
 
@@ -217,20 +205,13 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   });
 
   function handleRatingChange(payload) {
-    console.log("DB change", payload);
-    console.log(payload.new.id);
-    console.log(payload.new.votes);
-    console.log(playlists.data);
     const test = playlists;
-    console.log("test", test);
     const newTracks = playlists.data.tracks.map((song) => {
       if (song.anonify_index === payload.new.id) {
         return { ...song, votes: payload.new.votes };
       }
       return song;
     });
-    console.log("nextdata", { ...playlists.data, tracks: newTracks });
-    console.log("test", qc.getQueryData(["play"]));
     qc.setQueryData(["play"], { ...playlists.data, tracks: newTracks });
   }
 
@@ -239,7 +220,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     let post = await axios.put(`${playlistInfo.path}`, {
       trackId: addSongField,
     });
-    console.log("Post", post);
     await qc.invalidateQueries(["path"]);
     await qc.invalidateQueries(["play"]);
     await qc.prefetchQuery(["path"]);
@@ -266,8 +246,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
       };
 
       qc.setQueryData(["play"], (currentData) => {
-        console.log("currentData1", currentData);
-
         return {
           ...currentData,
           tracks: [...currentData.tracks, newTrack],
@@ -282,8 +260,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     }
   };
   const deleteSong = async (trackId, anonify_index) => {
-    console.log("Deleting", trackId, anonify_index);
-    console.log("path", playlistInfo.path);
     let patch = await axios.patch(
       `${playlistInfo.path}/${trackId}/${anonify_index}`,
     );
@@ -305,7 +281,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     mutationKey: ["addSong"],
     mutationFn: addToPlaylist,
     onSuccess: (data) => {
-      console.log("thedata", data);
       addSongToLocalStorage(data.data.id);
     },
   });
@@ -315,7 +290,6 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
       deleteSong(id, anonify_index);
     },
     onSuccess: async (data) => {
-      console.log("Delete song res", data);
       removeSongFromLocalStorage(data.data.id);
     },
   });
@@ -514,7 +488,11 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                 Auth Spotify + Create Playlist
               </button>
             </div>
-            {
+            <span className="text-xs">
+              * Must be whitelisted to export to Spotify as project is in dev
+              mode.
+            </span>
+            {/*
               <div className="flex justify-end">
                 <button
                   className="btn btn-primary my-1 w-full px-3 py-2 text-xl duration-500 ease-in-out"
@@ -528,7 +506,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
                   Debug
                 </button>
               </div>
-            }
+              */}
             {addSongToPlaylist.isError && (
               <div className="text-bold mx-auto my-1 flex w-full justify-center rounded-lg bg-red-500 p-3 text-center text-white">
                 <h2>Error...</h2>
