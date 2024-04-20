@@ -299,15 +299,16 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   return playlistInfo ? (
     <>
       <div className="flex min-w-[100%] flex-col justify-between bg-base-100 md:w-1/4 md:flex-row">
-        <div className="m-5 flex flex-col  items-center md:w-1/3 md:max-w-52">
+        <div className="m-5 mb-0 flex flex-col items-center md:w-1/3 md:max-w-52">
           <div className="flex w-full justify-start">
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
-          <h1 className="px-30 mb-0 text-center text-6xl font-bold sm:mb-10">
+          <h1 className="px-30 mb-0 text-center text-8xl font-bold sm:mb-10">
             <a href="/">
-              <span className="text-primary">Anonify</span>
+              <span className="m-10 text-primary">Anonify</span>
             </a>
           </h1>
+          <br />
           <h2>
             <div role="alert" className="alert bg-primary">
               <div className="flex flex-row items-center justify-evenly">
