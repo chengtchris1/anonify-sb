@@ -310,11 +310,13 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           </h1>
           <h2>
             <div role="alert" className="alert bg-primary">
-              <span className="loading loading-ring loading-md bg-primary-content"></span>
-              <span className="text-primary-content">
-                {activeUsers} {activeUsers === 1 ? "user is" : "users are"}{" "}
-                viewing this page
-              </span>
+              <div className="flex flex-row items-center justify-evenly">
+                <span className="loading loading-ring loading-md bg-primary-content"></span>
+                <span className="text-primary-content">
+                  {activeUsers} {activeUsers === 1 ? "user is" : "users are"}{" "}
+                  viewing this page
+                </span>
+              </div>
             </div>
           </h2>
         </div>
