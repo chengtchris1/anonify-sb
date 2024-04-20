@@ -303,7 +303,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
           <div className="flex w-full justify-start">
             <ThemeSelector theme={theme} setTheme={handleThemeChange} />
           </div>
-          <h1 className="px-30 mb-0 text-center text-8xl font-bold sm:mb-10">
+          <h1 className="px-30 </> mb-0 text-center text-8xl font-bold md:mb-10 md:text-6xl">
             <a href="/">
               <span className="m-10 text-primary">Anonify</span>
             </a>
