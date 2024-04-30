@@ -250,7 +250,7 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
         anonify_index: post.data.id,
         votes: 0,
       };
-
+      await qc.cancelQueries();
       qc.setQueryData(["play"], (currentData) => {
         return {
           ...currentData,
