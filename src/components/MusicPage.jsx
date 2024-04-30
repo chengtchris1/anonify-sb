@@ -121,7 +121,13 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
     .on(
       "postgres_changes",
       { event: "UPDATE", schema: "public", table: "tracks" },
-      handleRatingChange,
+      (p) => {
+        qc.invalidateQueries({ queryKey: ["play"] });
+        qc.invalidateQueries({ queryKey: ["path"] });
+        qc.prefetchQuery({ queryKey: ["path"] })
+          .then(() => qc.prefetchQuery({ queryKey: ["play"] }))
+          .then(() => handleRatingChange(p));
+      },
     )
     .on(
       "postgres_changes",
