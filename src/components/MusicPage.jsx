@@ -293,10 +293,11 @@ function MusicPage({ playlistInfo, theme, handleThemeChange }) {
   const deleteSongFromPlaylist = useMutation({
     mutationKey: ["delete"],
     mutationFn: ({ id, anonify_index }) => {
-      deleteSong(id, anonify_index);
+      return deleteSong(id, anonify_index);
     },
     onSuccess: async (data) => {
-      removeSongFromLocalStorage(data.data.id);
+      console.log('rm', data)
+      removeSongFromLocalStorage(data.id);
     },
   });
   const handleDelete = (id, anonify_index) => {

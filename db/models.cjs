@@ -3,7 +3,7 @@ const sb = require("@supabase/supabase-js");
 const supabase = sb.createClient(process.env.sb_client_id, process.env.sb_secret);
 const db = {};
 
-db.getPlaylist = async (path) => {
+db.getPlaylist = async (path, byVotes) => {
   const { data } = await supabase.from("playlists")
     .select(`
       id,

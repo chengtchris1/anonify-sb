@@ -80,7 +80,8 @@ app.get('/callback', async (req, res) => {
   const regex = /[^/]*$/
   const path = req.query.state.match(regex)[0]
 
-  let data = await db.getPlaylist('/' + path)
+  let data = await db.getPlaylist(('/' + path))
+  console.log(data)
   data = data[0]
   const trackIds = data.tracks.map(track => track.track_id)
   console.log(trackIds)
